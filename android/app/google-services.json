@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "340528556624",
+    "project_id": "propel-8f0b6",
+    "storage_bucket": "propel-8f0b6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:340528556624:android:749ce0bb710520fcffbf55",
+        "android_client_info": {
+          "package_name": "com.propel.app.propel"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCIBkglbOWY4t6xbFlwyikIneMuJ_vR5L8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

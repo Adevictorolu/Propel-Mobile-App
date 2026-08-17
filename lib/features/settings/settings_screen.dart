@@ -1,8 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/config/app_colors.dart';
 import '../../core/config/constants.dart';
-import '../../core/services/supabase_service.dart';
+import '../../core/services/firebase_service.dart';
 import '../../core/utils/validators.dart';
 import '../../core/widgets/app_button.dart';
 import '../../core/widgets/app_card.dart';
@@ -41,11 +42,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final mentorProfile = authProvider.mentorProfile;
     final menteeProfile = authProvider.menteeProfile;
 
-    _firstNameController = TextEditingController(text: profile?.firstName ?? '');
+    _firstNameController =
+        TextEditingController(text: profile?.firstName ?? '');
     _lastNameController = TextEditingController(text: profile?.lastName ?? '');
     _usernameController = TextEditingController(text: profile?.username ?? '');
-    _calendlyController = TextEditingController(text: profile?.calendlyUrl ?? '');
-    _bioController = TextEditingController(text: mentorProfile?.bio ?? menteeProfile?.bio ?? '');
+    _calendlyController =
+        TextEditingController(text: profile?.calendlyUrl ?? '');
+    _bioController = TextEditingController(
+        text: mentorProfile?.bio ?? menteeProfile?.bio ?? '');
     _gender = profile?.gender ?? 'Prefer not to say';
   }
 
@@ -68,28 +72,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     setState(() => _isLoading = true);
     try {
-      await SupabaseService.client.from('profiles').update({
+      await FirebaseService.db.collection('profiles').doc(user.uid).set({
         'first_name': _firstNameController.text.trim(),
         'last_name': _lastNameController.text.trim(),
-        'full_name': '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}'.trim(),
+        'full_name':
+            '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}'
+                .trim(),
         'username': _usernameController.text.trim(),
         'gender': _gender,
-        'calendly_url': _calendlyController.text.trim().isEmpty ? null : _calendlyController.text.trim(),
-      }).eq('id', user.id);
+        'calendly_url': _calendlyController.text.trim().isEmpty
+            ? null
+            : _calendlyController.text.trim(),
+      }, SetOptions(merge: true));
 
       if (profile?.role == 'mentor') {
-        await SupabaseService.client.from('mentor_profiles').update({
+        await FirebaseService.db.collection('mentor_profiles').doc(user.uid).set({
           'bio': _bioController.text.trim(),
-        }).eq('user_id', user.id);
+        }, SetOptions(merge: true));
       } else {
-        await SupabaseService.client.from('mentee_profiles').update({
+        await FirebaseService.db.collection('mentee_profiles').doc(user.uid).set({
           'bio': _bioController.text.trim(),
-        }).eq('user_id', user.id);
+        }, SetOptions(merge: true));
       }
 
       await context.read<AuthProvider>().refreshProfile();
       if (mounted) {
-        ToastOverlay.show(context, 'Settings saved successfully!', type: ToastType.success);
+        ToastOverlay.show(context, 'Settings saved successfully!',
+            type: ToastType.success);
       }
     } catch (e) {
       if (mounted) {
@@ -105,7 +114,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Delete Account', style: TextStyle(color: AppColors.error)),
+          title: const Text('Delete Account',
+              style: TextStyle(color: AppColors.error)),
           content: const Text(
             'Are you sure you want to delete your account? All your data and active connections will be permanently removed.',
           ),
@@ -119,9 +129,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               variant: AppButtonVariant.danger,
               onPressed: () async {
                 Navigator.pop(context);
-                final uid = context.read<AuthProvider>().user?.id;
+                final uid = context.read<AuthProvider>().user?.uid;
                 if (uid != null) {
-                  await SupabaseService.client.from('profiles').delete().eq('id', uid);
+                  await FirebaseService.db
+                      .collection('profiles')
+                      .doc(uid)
+                      .delete();
                   if (mounted) {
                     await context.read<AuthProvider>().logout();
                   }
@@ -139,20 +152,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
-        crossAxisAlignment: CrossAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Settings', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          const Text('Settings',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          const Text('Manage profile information and notification preferences', style: TextStyle(color: AppColors.slate500, fontSize: 13)),
+          const Text('Manage profile information and notification preferences',
+              style: TextStyle(color: AppColors.slate500, fontSize: 13)),
           const SizedBox(height: 24),
-
           AppCard(
             child: Form(
               key: _formKey,
               child: Column(
-                crossAxisAlignment: CrossAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Personal Information', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const Text('Personal Information',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
                   Row(
                     children: [
@@ -160,7 +176,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         child: AppTextField(
                           label: 'First Name',
                           controller: _firstNameController,
-                          validator: (v) => AppValidators.validateRequired(v, 'First name'),
+                          validator: (v) =>
+                              AppValidators.validateRequired(v, 'First name'),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -168,7 +185,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         child: AppTextField(
                           label: 'Last Name',
                           controller: _lastNameController,
-                          validator: (v) => AppValidators.validateRequired(v, 'Last name'),
+                          validator: (v) =>
+                              AppValidators.validateRequired(v, 'Last name'),
                         ),
                       ),
                     ],
@@ -180,10 +198,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     validator: AppValidators.validateUsername,
                   ),
                   const SizedBox(height: 14),
-                  const Text('Gender', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                  const Text('Gender',
+                      style:
+                          TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
                   const SizedBox(height: 6),
                   DropdownButtonFormField<String>(
-                    value: AppConstants.genderOptions.contains(_gender) ? _gender : AppConstants.genderOptions.first,
+                    initialValue: AppConstants.genderOptions.contains(_gender)
+                        ? _gender
+                        : AppConstants.genderOptions.first,
                     items: AppConstants.genderOptions
                         .map((g) => DropdownMenuItem(value: g, child: Text(g)))
                         .toList(),
@@ -212,54 +234,64 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           const SizedBox(height: 24),
-
           AppCard(
             child: Column(
-              crossAxisAlignment: CrossAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Notification Preferences', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const Text('Notification Preferences',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
                 SwitchListTile(
                   title: const Text('Connection Requests'),
-                  subtitle: const Text('Get notified when someone requests to connect'),
+                  subtitle: const Text(
+                      'Get notified when someone requests to connect'),
                   value: _inAppConnections,
-                  activeColor: AppColors.brandGreen600,
+                  activeThumbColor: AppColors.brandGreen600,
                   onChanged: (v) => setState(() => _inAppConnections = v),
                 ),
                 SwitchListTile(
                   title: const Text('Chat Messages'),
-                  subtitle: const Text('Get notified when you receive a new DM or group message'),
+                  subtitle: const Text(
+                      'Get notified when you receive a new DM or group message'),
                   value: _inAppMessages,
-                  activeColor: AppColors.brandGreen600,
+                  activeThumbColor: AppColors.brandGreen600,
                   onChanged: (v) => setState(() => _inAppMessages = v),
                 ),
                 SwitchListTile(
                   title: const Text('Event Reminders'),
-                  subtitle: const Text('Get notified for upcoming workshops and sessions'),
+                  subtitle: const Text(
+                      'Get notified for upcoming workshops and sessions'),
                   value: _inAppEvents,
-                  activeColor: AppColors.brandGreen600,
+                  activeThumbColor: AppColors.brandGreen600,
                   onChanged: (v) => setState(() => _inAppEvents = v),
                 ),
                 SwitchListTile(
                   title: const Text('Reviews & Ratings'),
-                  subtitle: const Text('Get notified when a connection leaves a review'),
+                  subtitle: const Text(
+                      'Get notified when a connection leaves a review'),
                   value: _inAppReviews,
-                  activeColor: AppColors.brandGreen600,
+                  activeThumbColor: AppColors.brandGreen600,
                   onChanged: (v) => setState(() => _inAppReviews = v),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 24),
-
           AppCard(
-            border: Border.all(color: AppColors.error.withOpacity(0.5)),
+            border: Border.all(color: AppColors.error.withValues(alpha: 0.5)),
             child: Column(
-              crossAxisAlignment: CrossAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Danger Zone', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.error)),
+                const Text('Danger Zone',
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.error)),
                 const SizedBox(height: 8),
-                const Text('Permanently delete your account and all associated mentorship data.', style: TextStyle(fontSize: 13, color: AppColors.slate500)),
+                const Text(
+                    'Permanently delete your account and all associated mentorship data.',
+                    style: TextStyle(fontSize: 13, color: AppColors.slate500)),
                 const SizedBox(height: 16),
                 AppButton(
                   text: 'Delete Account',

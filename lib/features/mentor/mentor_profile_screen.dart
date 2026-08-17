@@ -70,7 +70,7 @@ class _MentorProfileScreenState extends State<MentorProfileScreen> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
-          crossAxisAlignment: CrossAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AppCard(
               child: Row(
@@ -89,7 +89,7 @@ class _MentorProfileScreenState extends State<MentorProfileScreen> {
                   const SizedBox(width: 20),
                   Expanded(
                     child: Column(
-                      crossAxisAlignment: CrossAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(m['full_name'] as String, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                         Text(mp.areaOfMentorship, style: const TextStyle(fontSize: 14, color: AppColors.slate500)),
@@ -116,7 +116,7 @@ class _MentorProfileScreenState extends State<MentorProfileScreen> {
 
             AppCard(
               child: Column(
-                crossAxisAlignment: CrossAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('About Mentor', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
@@ -136,7 +136,7 @@ class _MentorProfileScreenState extends State<MentorProfileScreen> {
 
             AppCard(
               child: Column(
-                crossAxisAlignment: CrossAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('Work History', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
@@ -153,7 +153,7 @@ class _MentorProfileScreenState extends State<MentorProfileScreen> {
 
             AppCard(
               child: Column(
-                crossAxisAlignment: CrossAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Reviews (${ratings.length})', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
@@ -168,7 +168,7 @@ class _MentorProfileScreenState extends State<MentorProfileScreen> {
                             final r = ratings[index];
                             final rev = r['reviewer'] as Map<String, dynamic>?;
                             return Column(
-                              crossAxisAlignment: CrossAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
                                   children: [

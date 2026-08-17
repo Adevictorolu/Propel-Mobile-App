@@ -38,7 +38,7 @@ class _ReviewModalState extends State<ReviewModal> {
 
   Future<void> _handleSubmit() async {
     if (!_formKey.currentState!.validate()) return;
-    final reviewerId = context.read<AuthProvider>().user?.id;
+    final reviewerId = context.read<AuthProvider>().user?.uid;
     if (reviewerId == null) return;
 
     setState(() => _isLoading = true);

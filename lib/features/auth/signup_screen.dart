@@ -48,7 +48,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       if (mounted) {
         ToastOverlay.show(
           context,
-          'Account created successfully! Check your email to verify.',
+          'Account created successfully!',
           type: ToastType.success,
         );
       }
@@ -63,6 +63,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
   }
 
+  Future<void> _handleGoogleSignUp() async {
+    try {
+      await context.read<AuthProvider>().loginWithGoogle();
+      if (mounted) {
+        ToastOverlay.show(context, 'Signed up with Google successfully!', type: ToastType.success);
+      }
+    } catch (e) {
+      if (mounted) {
+        ToastOverlay.show(
+          context,
+          'Google Sign-Up error: ${e.toString().replaceAll('Exception: ', '')}',
+          type: ToastType.error,
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
@@ -70,7 +87,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return Form(
       key: _formKey,
       child: Column(
-        crossAxisAlignment: CrossAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
             'Create an Account',
@@ -82,6 +99,39 @@ class _SignUpScreenState extends State<SignUpScreen> {
             style: TextStyle(fontSize: 13, color: AppColors.slate500),
           ),
           const SizedBox(height: 20),
+
+          // Google Sign Up Button
+          OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(48),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              side: const BorderSide(color: AppColors.slate300),
+            ),
+            onPressed: authProvider.isLoading ? null : _handleGoogleSignUp,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Icon(Icons.g_mobiledata_rounded, size: 28, color: AppColors.brandBlue600),
+                SizedBox(width: 8),
+                Text(
+                  'Sign Up with Google',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.slate800),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: const [
+              Expanded(child: Divider()),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                child: Text('OR', style: TextStyle(fontSize: 11, color: AppColors.slate400, fontWeight: FontWeight.bold)),
+              ),
+              Expanded(child: Divider()),
+            ],
+          ),
+          const SizedBox(height: 16),
 
           const Text(
             'I want to join as a:',
@@ -112,7 +162,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ],
           ),
           const SizedBox(height: 16),
-
           Row(
             children: [
               Expanded(
@@ -120,7 +169,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   label: 'First Name',
                   hintText: 'John',
                   controller: _firstNameController,
-                  validator: (v) => AppValidators.validateRequired(v, 'First name'),
+                  validator: (v) =>
+                      AppValidators.validateRequired(v, 'First name'),
                 ),
               ),
               const SizedBox(width: 12),
@@ -129,7 +179,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   label: 'Last Name',
                   hintText: 'Doe',
                   controller: _lastNameController,
-                  validator: (v) => AppValidators.validateRequired(v, 'Last name'),
+                  validator: (v) =>
+                      AppValidators.validateRequired(v, 'Last name'),
                 ),
               ),
             ],
@@ -155,7 +206,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 _obscurePassword ? Icons.visibility_off : Icons.visibility,
                 size: 20,
               ),
-              onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+              onPressed: () =>
+                  setState(() => _obscurePassword = !_obscurePassword),
             ),
             validator: AppValidators.validatePassword,
           ),
@@ -219,7 +271,9 @@ class _RoleCard extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: isSelected
-              ? (isDark ? AppColors.brandBlue900.withOpacity(0.4) : AppColors.brandBlue50)
+              ? (isDark
+                  ? AppColors.brandBlue900.withValues(alpha: 0.4)
+                  : AppColors.brandBlue50)
               : (isDark ? AppColors.slate800 : Colors.white),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
@@ -239,7 +293,7 @@ class _RoleCard extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Column(
-                crossAxisAlignment: CrossAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
@@ -251,7 +305,8 @@ class _RoleCard extends StatelessWidget {
                   ),
                   Text(
                     subtitle,
-                    style: const TextStyle(fontSize: 10, color: AppColors.slate500),
+                    style: const TextStyle(
+                        fontSize: 10, color: AppColors.slate500),
                   ),
                 ],
               ),

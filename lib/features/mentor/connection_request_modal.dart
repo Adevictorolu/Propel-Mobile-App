@@ -35,7 +35,7 @@ class _ConnectionRequestModalState extends State<ConnectionRequestModal> {
 
   Future<void> _handleSubmit() async {
     if (!_formKey.currentState!.validate()) return;
-    final menteeId = context.read<AuthProvider>().user?.id;
+    final menteeId = context.read<AuthProvider>().user?.uid;
     if (menteeId == null) return;
 
     setState(() => _isLoading = true);
@@ -66,7 +66,7 @@ class _ConnectionRequestModalState extends State<ConnectionRequestModal> {
         key: _formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Introduce yourself and state what you hope to achieve through this mentorship connection.',

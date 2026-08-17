@@ -1,6 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import '../core/services/supabase_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../core/services/firebase_service.dart';
 import '../models/notification.dart';
 
 class NotificationsProvider extends ChangeNotifier {
@@ -8,7 +9,7 @@ class NotificationsProvider extends ChangeNotifier {
   List<AppNotification> _notifications = [];
   int _unreadCount = 0;
   bool _isLoading = false;
-  RealtimeChannel? _subscription;
+  StreamSubscription<QuerySnapshot>? _subscription;
 
   List<AppNotification> get notifications => _notifications;
   int get unreadCount => _unreadCount;
@@ -17,12 +18,10 @@ class NotificationsProvider extends ChangeNotifier {
   void updateUserId(String? userId) {
     if (_userId != userId) {
       _userId = userId;
-      if (_subscription != null) {
-        SupabaseService.client.removeChannel(_subscription!);
-        _subscription = null;
-      }
+      _subscription?.cancel();
+      _subscription = null;
+
       if (userId != null) {
-        loadNotifications();
         _subscribeRealtime();
       } else {
         _notifications = [];
@@ -34,55 +33,52 @@ class NotificationsProvider extends ChangeNotifier {
 
   @override
   void dispose() {
-    if (_subscription != null) {
-      SupabaseService.client.removeChannel(_subscription!);
-    }
+    _subscription?.cancel();
     super.dispose();
-  }
-
-  Future<void> loadNotifications() async {
-    if (_userId == null) return;
-    _isLoading = true;
-    notifyListeners();
-
-    try {
-      final notifs = await SupabaseService.fetchNotifications(_userId!);
-      final unread = await SupabaseService.fetchUnreadNotificationCount(_userId!);
-      _notifications = notifs;
-      _unreadCount = unread;
-      _isLoading = false;
-      notifyListeners();
-    } catch (e) {
-      _isLoading = false;
-      notifyListeners();
-    }
   }
 
   void _subscribeRealtime() {
     if (_userId == null) return;
-    _subscription = SupabaseService.client
-        .channel('notifications-$_userId')
-        .onPostgresChanges(
-          event: PostgresChangeEvent.insert,
-          schema: 'public',
-          table: 'notifications',
-          filter: PostgresChangeFilter(
-            type: PostgresChangeFilterType.eq,
-            column: 'user_id',
-            value: _userId!,
-          ),
-          callback: (payload) {
-            final newNotif = AppNotification.fromJson(payload.newRecord);
-            _notifications = [newNotif, ..._notifications];
-            _unreadCount++;
-            notifyListeners();
-          },
-        )
-        .subscribe();
+    _isLoading = true;
+    notifyListeners();
+
+    _subscription = FirebaseService.db
+        .collection('notifications')
+        .where('user_id', isEqualTo: _userId!)
+        .orderBy('created_at', descending: true)
+        .limit(20)
+        .snapshots()
+        .listen((snapshot) {
+      final list = <AppNotification>[];
+      int unread = 0;
+
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+        final isRead = data['is_read'] as bool? ?? false;
+        if (!isRead) unread++;
+
+        list.add(AppNotification.fromJson({
+          ...data,
+          'id': doc.id,
+        }));
+      }
+
+      _notifications = list;
+      _unreadCount = unread;
+      _isLoading = false;
+      notifyListeners();
+    }, onError: (_) {
+      _isLoading = false;
+      notifyListeners();
+    });
   }
 
   Future<void> markRead(String notificationId) async {
-    await SupabaseService.markNotificationRead(notificationId);
+    await FirebaseService.db
+        .collection('notifications')
+        .doc(notificationId)
+        .update({'is_read': true});
+
     _notifications = _notifications.map((n) {
       if (n.id == notificationId) {
         return AppNotification(
@@ -104,7 +100,18 @@ class NotificationsProvider extends ChangeNotifier {
 
   Future<void> markAllRead() async {
     if (_userId == null) return;
-    await SupabaseService.markAllNotificationsRead(_userId!);
+    final batch = FirebaseService.db.batch();
+    final docs = await FirebaseService.db
+        .collection('notifications')
+        .where('user_id', isEqualTo: _userId!)
+        .where('is_read', isEqualTo: false)
+        .get();
+
+    for (final doc in docs.docs) {
+      batch.update(doc.reference, {'is_read': true});
+    }
+    await batch.commit();
+
     _notifications = _notifications.map((n) => AppNotification(
       id: n.id,
       userId: n.userId,

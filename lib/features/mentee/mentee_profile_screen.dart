@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/config/app_colors.dart';
 import '../../core/services/supabase_service.dart';
 import '../../core/widgets/app_badge.dart';
@@ -7,16 +6,16 @@ import '../../core/widgets/app_card.dart';
 import '../../core/widgets/shimmer_loading.dart';
 import '../../models/mentee_profile.dart';
 
-class MenteeProfileScreen extends ConsumerStatefulWidget {
+class MenteeProfileScreen extends StatefulWidget {
   final String menteeId;
 
   const MenteeProfileScreen({super.key, required this.menteeId});
 
   @override
-  ConsumerState<MenteeProfileScreen> createState() => _MenteeProfileScreenState();
+  State<MenteeProfileScreen> createState() => _MenteeProfileScreenState();
 }
 
-class _MenteeProfileScreenState extends ConsumerState<MenteeProfileScreen> {
+class _MenteeProfileScreenState extends State<MenteeProfileScreen> {
   bool _isLoading = true;
   Map<String, dynamic>? _menteeData;
 
@@ -56,7 +55,7 @@ class _MenteeProfileScreenState extends ConsumerState<MenteeProfileScreen> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
-          crossAxisAlignment: CrossAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AppCard(
               child: Row(
@@ -75,7 +74,7 @@ class _MenteeProfileScreenState extends ConsumerState<MenteeProfileScreen> {
                   const SizedBox(width: 20),
                   Expanded(
                     child: Column(
-                      crossAxisAlignment: CrossAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(m['full_name'] as String, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                         Text('Area of Interest: ${me.areaOfInterest}', style: const TextStyle(fontSize: 14, color: AppColors.slate500)),
@@ -88,7 +87,7 @@ class _MenteeProfileScreenState extends ConsumerState<MenteeProfileScreen> {
             const SizedBox(height: 24),
             AppCard(
               child: Column(
-                crossAxisAlignment: CrossAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('About Mentee', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
@@ -103,7 +102,7 @@ class _MenteeProfileScreenState extends ConsumerState<MenteeProfileScreen> {
             const SizedBox(height: 24),
             AppCard(
               child: Column(
-                crossAxisAlignment: CrossAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('Learning Goals', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
@@ -118,7 +117,7 @@ class _MenteeProfileScreenState extends ConsumerState<MenteeProfileScreen> {
             const SizedBox(height: 24),
             AppCard(
               child: Column(
-                crossAxisAlignment: CrossAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('Desired Skills', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),

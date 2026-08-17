@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import '../core/services/supabase_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../core/services/firebase_service.dart';
 import '../models/profile.dart';
 import '../models/mentor_profile.dart';
 import '../models/mentee_profile.dart';
@@ -31,10 +31,9 @@ class AuthProvider extends ChangeNotifier {
   }
 
   void _init() {
-    SupabaseService.client.auth.onAuthStateChange.listen((data) async {
-      final session = data.session;
-      if (session?.user != null) {
-        await loadUserData(session!.user.id);
+    FirebaseService.auth.authStateChanges().listen((firebaseUser) async {
+      if (firebaseUser != null) {
+        await loadUserData(firebaseUser.uid);
       } else {
         _user = null;
         _profile = null;
@@ -46,9 +45,9 @@ class AuthProvider extends ChangeNotifier {
       }
     });
 
-    final initialUser = SupabaseService.currentUser;
+    final initialUser = FirebaseService.currentUser;
     if (initialUser != null) {
-      loadUserData(initialUser.id);
+      loadUserData(initialUser.uid);
     } else {
       _isLoading = false;
       _isInitialized = true;
@@ -61,19 +60,19 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final prof = await SupabaseService.fetchProfile(userId);
+      final prof = await FirebaseService.fetchProfile(userId);
       MentorProfile? mProf;
       MenteeProfile? meProf;
 
       if (prof != null) {
         if (prof.role == 'mentor') {
-          mProf = await SupabaseService.fetchMentorProfile(userId);
+          mProf = await FirebaseService.fetchMentorProfile(userId);
         } else {
-          meProf = await SupabaseService.fetchMenteeProfile(userId);
+          meProf = await FirebaseService.fetchMenteeProfile(userId);
         }
       }
 
-      _user = SupabaseService.currentUser;
+      _user = FirebaseService.currentUser;
       _profile = prof;
       _mentorProfile = mProf;
       _menteeProfile = meProf;
@@ -95,9 +94,30 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final res = await SupabaseService.signIn(email: email, password: password);
+      final res = await FirebaseService.signIn(email: email, password: password);
       if (res.user != null) {
-        await loadUserData(res.user!.id);
+        await loadUserData(res.user!.uid);
+      }
+    } catch (e) {
+      _isLoading = false;
+      _error = e.toString();
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<void> loginWithGoogle() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final res = await FirebaseService.signInWithGoogle();
+      if (res?.user != null) {
+        await loadUserData(res!.user!.uid);
+      } else {
+        _isLoading = false;
+        notifyListeners();
       }
     } catch (e) {
       _isLoading = false;
@@ -119,7 +139,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final res = await SupabaseService.signUp(
+      final res = await FirebaseService.signUp(
         email: email,
         password: password,
         firstName: firstName,
@@ -127,7 +147,7 @@ class AuthProvider extends ChangeNotifier {
         role: role,
       );
       if (res.user != null) {
-        await loadUserData(res.user!.id);
+        await loadUserData(res.user!.uid);
       }
     } catch (e) {
       _isLoading = false;
@@ -138,7 +158,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> logout() async {
-    await SupabaseService.signOut();
+    await FirebaseService.signOut();
     _user = null;
     _profile = null;
     _mentorProfile = null;
@@ -150,7 +170,7 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> refreshProfile() async {
     if (_user != null) {
-      await loadUserData(_user!.id);
+      await loadUserData(_user!.uid);
     }
   }
 }

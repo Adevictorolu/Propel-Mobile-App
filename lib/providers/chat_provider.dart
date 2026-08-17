@@ -1,6 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import '../core/services/supabase_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../core/services/firebase_service.dart';
 import '../models/message.dart';
 
 class ChatProvider extends ChangeNotifier {
@@ -11,7 +12,7 @@ class ChatProvider extends ChangeNotifier {
   List<Message> _messages = [];
   bool _isLoading = false;
   bool _isSending = false;
-  RealtimeChannel? _realtimeChannel;
+  StreamSubscription<QuerySnapshot>? _subscription;
 
   List<Message> get messages => _messages;
   bool get isLoading => _isLoading;
@@ -23,13 +24,10 @@ class ChatProvider extends ChangeNotifier {
       _channelId = channelId;
       _userId = userId;
 
-      if (_realtimeChannel != null) {
-        SupabaseService.client.removeChannel(_realtimeChannel!);
-        _realtimeChannel = null;
-      }
+      _subscription?.cancel();
+      _subscription = null;
 
       if (channelId.isNotEmpty) {
-        loadMessages();
         _subscribeRealtime();
       }
     }
@@ -37,67 +35,53 @@ class ChatProvider extends ChangeNotifier {
 
   @override
   void dispose() {
-    if (_realtimeChannel != null) {
-      SupabaseService.client.removeChannel(_realtimeChannel!);
-    }
+    _subscription?.cancel();
     super.dispose();
-  }
-
-  Future<void> loadMessages() async {
-    if (_type == null || _channelId == null) return;
-    _isLoading = true;
-    notifyListeners();
-
-    try {
-      final msgs = await SupabaseService.fetchMessages(_type!, _channelId!);
-      _messages = msgs;
-      _isLoading = false;
-      notifyListeners();
-    } catch (e) {
-      _isLoading = false;
-      notifyListeners();
-    }
   }
 
   void _subscribeRealtime() {
     if (_type == null || _channelId == null) return;
-    final column = _type == 'dm' ? 'connection_id' : 'group_id';
-    _realtimeChannel = SupabaseService.client
-        .channel('chat-$_type-$_channelId')
-        .onPostgresChanges(
-          event: PostgresChangeEvent.insert,
-          schema: 'public',
-          table: 'messages',
-          filter: PostgresChangeFilter(
-            type: PostgresChangeFilterType.eq,
-            column: column,
-            value: _channelId!,
-          ),
-          callback: (payload) async {
-            final newRow = payload.newRecord;
-            final senderId = newRow['sender_id'] as String;
-            final senderProfile = await SupabaseService.fetchProfile(senderId);
+    _isLoading = true;
+    notifyListeners();
 
-            final incomingMsg = Message.fromJson({
-              ...newRow,
-              'sender': senderProfile?.toJson(),
-            });
+    final field = _type == 'dm' ? 'connection_id' : 'group_id';
+    _subscription = FirebaseService.db
+        .collection('messages')
+        .where(field, isEqualTo: _channelId!)
+        .orderBy('created_at', descending: false)
+        .snapshots()
+        .listen((snapshot) async {
+      final list = <Message>[];
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+        final senderId = data['sender_id'] as String?;
+        Map<String, dynamic>? senderData;
+        if (senderId != null) {
+          final sDoc = await FirebaseService.db.collection('profiles').doc(senderId).get();
+          senderData = sDoc.data();
+        }
 
-            final filtered = _messages.where((m) => !(m.isOptimistic && m.senderId == senderId && m.content == incomingMsg.content)).toList();
-            if (!filtered.any((m) => m.id == incomingMsg.id)) {
-              _messages = [...filtered, incomingMsg];
-              notifyListeners();
-            }
-          },
-        )
-        .subscribe();
+        list.add(Message.fromJson({
+          ...data,
+          'id': doc.id,
+          'sender': senderData,
+        }));
+      }
+
+      _messages = list;
+      _isLoading = false;
+      notifyListeners();
+    }, onError: (_) {
+      _isLoading = false;
+      notifyListeners();
+    });
   }
 
   Future<void> sendMessage(String content) async {
     if (_userId == null || _type == null || _channelId == null || content.trim().isEmpty) return;
 
     final tempId = 'optimistic-${DateTime.now().millisecondsSinceEpoch}';
-    final userProfile = await SupabaseService.fetchProfile(_userId!);
+    final userProfile = await FirebaseService.fetchProfile(_userId!);
 
     final optimisticMsg = Message(
       id: tempId,
@@ -116,14 +100,19 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final sent = await SupabaseService.sendMessage(
-        senderId: _userId!,
-        type: _type!,
-        channelId: _channelId!,
-        content: content.trim(),
-      );
+      final payload = <String, dynamic>{
+        'sender_id': _userId!,
+        'content': content.trim(),
+        'type': _type!,
+        'created_at': DateTime.now().toIso8601String(),
+      };
+      if (_type == 'dm') {
+        payload['connection_id'] = _channelId;
+      } else {
+        payload['group_id'] = _channelId;
+      }
 
-      _messages = _messages.map((m) => m.id == tempId ? sent : m).toList();
+      await FirebaseService.db.collection('messages').add(payload);
       _isSending = false;
       notifyListeners();
     } catch (e) {

@@ -41,8 +41,8 @@ class _RatingsScreenState extends State<RatingsScreen> with SingleTickerProvider
 
     setState(() => _isLoading = true);
     try {
-      final aboutMe = await SupabaseService.fetchReviewsAboutMe(user.id);
-      final myRevs = await SupabaseService.fetchMyReviews(user.id);
+      final aboutMe = await SupabaseService.fetchReviewsAboutMe(user.uid);
+      final myRevs = await SupabaseService.fetchMyReviews(user.uid);
       setState(() {
         _reviewsAboutMe = aboutMe;
         _myReviews = myRevs;
@@ -67,7 +67,7 @@ class _RatingsScreenState extends State<RatingsScreen> with SingleTickerProvider
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
-        crossAxisAlignment: CrossAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('Ratings & Reviews', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
@@ -78,11 +78,11 @@ class _RatingsScreenState extends State<RatingsScreen> with SingleTickerProvider
             child: Row(
               children: [
                 Column(
-                  crossAxisAlignment: CrossAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       _avgRatingAboutMe.toStringAsFixed(1),
-                      style: const TextStyle(fontSize: 36, fontWeight: FontWeight.extrabold, color: AppColors.brandGreen600),
+                      style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w800, color: AppColors.brandGreen600),
                     ),
                     StarRating(rating: _avgRatingAboutMe, iconSize: 20),
                     const SizedBox(height: 4),
@@ -141,7 +141,7 @@ class _RatingsScreenState extends State<RatingsScreen> with SingleTickerProvider
           padding: const EdgeInsets.only(bottom: 12),
           child: AppCard(
             child: Column(
-              crossAxisAlignment: CrossAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [

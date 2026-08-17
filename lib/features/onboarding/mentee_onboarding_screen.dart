@@ -29,7 +29,9 @@ class _MenteeOnboardingScreenState extends State<MenteeOnboardingScreen> {
   String _gender = 'Prefer not to say';
   String _areaOfInterest = AppConstants.availableMentorshipAreas.first;
 
-  final List<String> _learningGoals = ['Master Flutter Web & Mobile Architecture'];
+  final List<String> _learningGoals = [
+    'Master Flutter Web & Mobile Architecture'
+  ];
   final List<String> _desiredSkills = ['Dart', 'State Management'];
 
   bool _isLoading = false;
@@ -67,7 +69,9 @@ class _MenteeOnboardingScreenState extends State<MenteeOnboardingScreen> {
   Future<void> _handleSubmit() async {
     if (!_formKey.currentState!.validate()) return;
     if (_learningGoals.isEmpty || _desiredSkills.isEmpty) {
-      ToastOverlay.show(context, 'Please add at least one learning goal and skill', type: ToastType.error);
+      ToastOverlay.show(
+          context, 'Please add at least one learning goal and skill',
+          type: ToastType.error);
       return;
     }
 
@@ -78,7 +82,7 @@ class _MenteeOnboardingScreenState extends State<MenteeOnboardingScreen> {
 
     try {
       await SupabaseService.completeMenteeOnboarding(
-        userId: user.id,
+        userId: user.uid,
         username: _usernameController.text.trim(),
         gender: _gender,
         areaOfInterest: _areaOfInterest,
@@ -90,7 +94,8 @@ class _MenteeOnboardingScreenState extends State<MenteeOnboardingScreen> {
 
       await context.read<AuthProvider>().refreshProfile();
       if (mounted) {
-        ToastOverlay.show(context, 'Onboarding complete! Welcome to Propel.', type: ToastType.success);
+        ToastOverlay.show(context, 'Onboarding complete! Welcome to Propel.',
+            type: ToastType.success);
         context.go('/dashboard');
       }
     } catch (e) {
@@ -114,168 +119,206 @@ class _MenteeOnboardingScreenState extends State<MenteeOnboardingScreen> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Center(
-          child: Container(
-            maxWidth: 600,
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAlignment.start,
-                children: [
-                  Text(
-                    'Set Up Your Learning Profile',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : AppColors.slate900,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: SizedBox(
+              width: double.infinity,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Set Up Your Learning Profile',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : AppColors.slate900,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Tell us about your aspirations and goals so we can match you with ideal mentors.',
-                    style: TextStyle(color: AppColors.slate500, fontSize: 14),
-                  ),
-                  const SizedBox(height: 24),
-
-                  AppCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAlignment.start,
-                      children: [
-                        AppTextField(
-                          label: 'Username',
-                          hintText: 'johndoe_learner',
-                          controller: _usernameController,
-                          validator: AppValidators.validateUsername,
-                        ),
-                        const SizedBox(height: 16),
-                        const Text('Gender', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                        const SizedBox(height: 6),
-                        DropdownButtonFormField<String>(
-                          value: _gender,
-                          items: AppConstants.genderOptions
-                              .map((g) => DropdownMenuItem(value: g, child: Text(g)))
-                              .toList(),
-                          onChanged: (v) => setState(() => _gender = v!),
-                          decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12)),
-                        ),
-                        const SizedBox(height: 16),
-                        const Text('Primary Area of Interest', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                        const SizedBox(height: 6),
-                        DropdownButtonFormField<String>(
-                          value: _areaOfInterest,
-                          items: AppConstants.availableMentorshipAreas
-                              .map((a) => DropdownMenuItem(value: a, child: Text(a)))
-                              .toList(),
-                          onChanged: (v) => setState(() => _areaOfInterest = v!),
-                          decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12)),
-                        ),
-                        const SizedBox(height: 16),
-                        AppTextField(
-                          label: 'Bio',
-                          hintText: 'Share a quick summary about your background and interests...',
-                          controller: _bioController,
-                          maxLines: 3,
-                          validator: (v) => AppValidators.validateMinLength(v, 20, 'Bio'),
-                        ),
-                        const SizedBox(height: 16),
-                        AppTextField(
-                          label: 'Career Aspirations',
-                          hintText: 'Where do you see yourself in 2-3 years? What do you want to build?',
-                          controller: _aspirationsController,
-                          maxLines: 3,
-                          validator: (v) => AppValidators.validateMinLength(v, 20, 'Aspirations'),
-                        ),
-                      ],
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Tell us about your aspirations and goals so we can match you with ideal mentors.',
+                      style: TextStyle(color: AppColors.slate500, fontSize: 14),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  AppCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAlignment.start,
-                      children: [
-                        const Text('Learning Goals', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: _goalInputController,
-                                decoration: const InputDecoration(hintText: 'Add a goal (e.g. Build fullstack app)'),
-                                onSubmitted: (_) => _addGoal(),
+                    const SizedBox(height: 24),
+                    AppCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AppTextField(
+                            label: 'Username',
+                            hintText: 'johndoe_learner',
+                            controller: _usernameController,
+                            validator: AppValidators.validateUsername,
+                          ),
+                          const SizedBox(height: 16),
+                          const Text('Gender',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600, fontSize: 14)),
+                          const SizedBox(height: 6),
+                          DropdownButtonFormField<String>(
+                            initialValue: _gender,
+                            items: AppConstants.genderOptions
+                                .map((g) =>
+                                    DropdownMenuItem(value: g, child: Text(g)))
+                                .toList(),
+                            onChanged: (v) => setState(() => _gender = v!),
+                            decoration: const InputDecoration(
+                                contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 12)),
+                          ),
+                          const SizedBox(height: 16),
+                          const Text('Primary Area of Interest',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600, fontSize: 14)),
+                          const SizedBox(height: 6),
+                          DropdownButtonFormField<String>(
+                            initialValue: _areaOfInterest,
+                            items: AppConstants.availableMentorshipAreas
+                                .map((a) =>
+                                    DropdownMenuItem(value: a, child: Text(a)))
+                                .toList(),
+                            onChanged: (v) =>
+                                setState(() => _areaOfInterest = v!),
+                            decoration: const InputDecoration(
+                                contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 12)),
+                          ),
+                          const SizedBox(height: 16),
+                          AppTextField(
+                            label: 'Bio',
+                            hintText:
+                                'Share a quick summary about your background and interests...',
+                            controller: _bioController,
+                            maxLines: 3,
+                            validator: (v) =>
+                                AppValidators.validateMinLength(v, 20, 'Bio'),
+                          ),
+                          const SizedBox(height: 16),
+                          AppTextField(
+                            label: 'Career Aspirations',
+                            hintText:
+                                'Where do you see yourself in 2-3 years? What do you want to build?',
+                            controller: _aspirationsController,
+                            maxLines: 3,
+                            validator: (v) => AppValidators.validateMinLength(
+                                v, 20, 'Aspirations'),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    AppCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Learning Goals',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16)),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: _goalInputController,
+                                  decoration: const InputDecoration(
+                                      hintText:
+                                          'Add a goal (e.g. Build fullstack app)'),
+                                  onSubmitted: (_) => _addGoal(),
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            IconButton.filled(
-                              onPressed: _addGoal,
-                              icon: const Icon(Icons.add),
-                              style: IconButton.styleFrom(backgroundColor: AppColors.brandBlue600),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Column(
-                          children: _learningGoals.map((goal) => ListTile(
-                            dense: true,
-                            leading: const Icon(Icons.check_circle_outline, color: AppColors.brandBlue600, size: 20),
-                            title: Text(goal, style: const TextStyle(fontWeight: FontWeight.w500)),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.close, size: 18),
-                              onPressed: () => setState(() => _learningGoals.remove(goal)),
-                            ),
-                          )).toList(),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  AppCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAlignment.start,
-                      children: [
-                        const Text('Desired Skills to Learn', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: _skillInputController,
-                                decoration: const InputDecoration(hintText: 'Add a skill (e.g. GraphQL, System Design)'),
-                                onSubmitted: (_) => _addSkill(),
+                              const SizedBox(width: 8),
+                              IconButton.filled(
+                                onPressed: _addGoal,
+                                icon: const Icon(Icons.add),
+                                style: IconButton.styleFrom(
+                                    backgroundColor: AppColors.brandBlue600),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            IconButton.filled(
-                              onPressed: _addSkill,
-                              icon: const Icon(Icons.add),
-                              style: IconButton.styleFrom(backgroundColor: AppColors.brandGreen600),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: _desiredSkills.map((skill) => Chip(
-                            label: Text(skill),
-                            deleteIcon: const Icon(Icons.close, size: 16),
-                            onDeleted: () => setState(() => _desiredSkills.remove(skill)),
-                            backgroundColor: AppColors.brandBlue100,
-                            labelStyle: const TextStyle(color: AppColors.brandBlue800, fontWeight: FontWeight.w600),
-                          )).toList(),
-                        ),
-                      ],
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Column(
+                            children: _learningGoals
+                                .map((goal) => ListTile(
+                                      dense: true,
+                                      leading: const Icon(
+                                          Icons.check_circle_outline,
+                                          color: AppColors.brandBlue600,
+                                          size: 20),
+                                      title: Text(goal,
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w500)),
+                                      trailing: IconButton(
+                                        icon: const Icon(Icons.close, size: 18),
+                                        onPressed: () => setState(
+                                            () => _learningGoals.remove(goal)),
+                                      ),
+                                    ))
+                                .toList(),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 28),
-
-                  AppButton(
-                    text: 'Complete Profile & Explore Mentors',
-                    isFullWidth: true,
-                    isLoading: _isLoading,
-                    onPressed: _handleSubmit,
-                  ),
-                ],
+                    const SizedBox(height: 20),
+                    AppCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Desired Skills to Learn',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16)),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: _skillInputController,
+                                  decoration: const InputDecoration(
+                                      hintText:
+                                          'Add a skill (e.g. GraphQL, System Design)'),
+                                  onSubmitted: (_) => _addSkill(),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              IconButton.filled(
+                                onPressed: _addSkill,
+                                icon: const Icon(Icons.add),
+                                style: IconButton.styleFrom(
+                                    backgroundColor: AppColors.brandGreen600),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: _desiredSkills
+                                .map((skill) => Chip(
+                                      label: Text(skill),
+                                      deleteIcon:
+                                          const Icon(Icons.close, size: 16),
+                                      onDeleted: () => setState(
+                                          () => _desiredSkills.remove(skill)),
+                                      backgroundColor: AppColors.brandBlue100,
+                                      labelStyle: const TextStyle(
+                                          color: AppColors.brandBlue800,
+                                          fontWeight: FontWeight.w600),
+                                    ))
+                                .toList(),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+                    AppButton(
+                      text: 'Complete Profile & Explore Mentors',
+                      isFullWidth: true,
+                      isLoading: _isLoading,
+                      onPressed: _handleSubmit,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
