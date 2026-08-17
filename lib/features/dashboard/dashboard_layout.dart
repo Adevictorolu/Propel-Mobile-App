@@ -18,6 +18,14 @@ class DashboardLayout extends StatefulWidget {
 class _DashboardLayoutState extends State<DashboardLayout> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  static const List<_NavItem> _navItems = [
+    _NavItem(route: '/dashboard', label: 'Home', icon: Icons.home_outlined, activeIcon: Icons.home),
+    _NavItem(route: '/explore', label: 'Mentorship', icon: Icons.explore_outlined, activeIcon: Icons.explore),
+    _NavItem(route: '/calendar', label: 'Calendar', icon: Icons.calendar_month_outlined, activeIcon: Icons.calendar_month),
+    _NavItem(route: '/messages', label: 'Messages', icon: Icons.forum_outlined, activeIcon: Icons.forum),
+    _NavItem(route: '/profile', label: 'Profile', icon: Icons.person_outline, activeIcon: Icons.person),
+  ];
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -25,46 +33,24 @@ class _DashboardLayoutState extends State<DashboardLayout> {
     final authProvider = context.watch<AuthProvider>();
     final notificationsProvider = context.watch<NotificationsProvider>();
     final userProfile = authProvider.profile;
-
-    final isDesktop = MediaQuery.of(context).size.width >= 900;
+    final currentIndex = _selectedIndex(currentLoc);
+    final isMobile = MediaQuery.of(context).size.width < 900;
 
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        leading: isDesktop
-            ? null
-            : IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: () => _scaffoldKey.currentState?.openDrawer(),
-              ),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: AppColors.brandGreen600,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Icons.rocket_launch, color: Colors.white, size: 18),
-            ),
-            const SizedBox(width: 10),
-            Text(
-              'PROPEL',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-                letterSpacing: 1.2,
-                color: isDark ? Colors.white : AppColors.slate900,
-              ),
-            ),
-          ],
+        leading: IconButton(
+          icon: const Icon(Icons.menu_rounded),
+          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
         ),
+        title: Text(_titleForRoute(currentLoc)),
+        centerTitle: false,
         actions: [
           Stack(
             children: [
               IconButton(
                 icon: const Icon(Icons.notifications_outlined),
-                onPressed: () => _showNotificationsDialog(context),
+                onPressed: () => _showNotificationsSheet(context),
               ),
               if (notificationsProvider.unreadCount > 0)
                 Positioned(
@@ -72,98 +58,29 @@ class _DashboardLayoutState extends State<DashboardLayout> {
                   top: 8,
                   child: Container(
                     padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: AppColors.error,
-                      shape: BoxShape.circle,
-                    ),
+                    decoration: const BoxDecoration(color: AppColors.error, shape: BoxShape.circle),
                     constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
                     child: Text(
                       '${notificationsProvider.unreadCount}',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
             ],
           ),
-
           IconButton(
             icon: Icon(isDark ? Icons.wb_sunny_outlined : Icons.nightlight_round),
             onPressed: () => context.read<ThemeProvider>().toggleTheme(),
           ),
-
-          const SizedBox(width: 8),
-
-          PopupMenuButton<String>(
-            offset: const Offset(0, 48),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                enabled: false,
-                child: Column(
-                  crossAxisAlignment: CrossAlignment.start,
-                  children: [
-                    Text(
-                      userProfile?.fullName ?? 'User',
-                      style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.slate900),
-                    ),
-                    Text(
-                      userProfile?.email ?? '',
-                      style: const TextStyle(fontSize: 12, color: AppColors.slate500),
-                    ),
-                  ],
-                ),
-              ),
-              const PopupMenuDivider(),
-              PopupMenuItem(
-                value: 'profile',
-                child: const Row(
-                  children: [
-                    Icon(Icons.person_outline, size: 18),
-                    SizedBox(width: 8),
-                    Text('My Profile'),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'settings',
-                child: const Row(
-                  children: [
-                    Icon(Icons.settings_outlined, size: 18),
-                    SizedBox(width: 8),
-                    Text('Settings'),
-                  ],
-                ),
-              ),
-              const PopupMenuDivider(),
-              PopupMenuItem(
-                value: 'logout',
-                child: const Row(
-                  children: [
-                    Icon(Icons.logout, color: AppColors.error, size: 18),
-                    SizedBox(width: 8),
-                    Text('Sign Out', style: TextStyle(color: AppColors.error)),
-                  ],
-                ),
-              ),
-            ],
-            onSelected: (val) {
-              if (val == 'profile') context.go('/profile');
-              if (val == 'settings') context.go('/settings');
-              if (val == 'logout') context.read<AuthProvider>().logout();
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(right: 16),
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: GestureDetector(
+              onTap: () => context.go('/profile'),
               child: CircleAvatar(
                 radius: 16,
                 backgroundColor: AppColors.brandBlue600,
-                backgroundImage: userProfile?.avatarUrl != null
-                    ? NetworkImage(userProfile!.avatarUrl!)
-                    : null,
+                backgroundImage: userProfile?.avatarUrl != null ? NetworkImage(userProfile!.avatarUrl!) : null,
                 child: userProfile?.avatarUrl == null
                     ? Text(
                         userProfile?.firstName.isNotEmpty == true ? userProfile!.firstName[0].toUpperCase() : 'U',
@@ -175,179 +92,260 @@ class _DashboardLayoutState extends State<DashboardLayout> {
           ),
         ],
       ),
-      drawer: isDesktop ? null : Drawer(child: _buildNavigationContent(context, currentLoc)),
-      body: Row(
-        children: [
-          if (isDesktop)
-            Container(
-              width: 250,
-              decoration: BoxDecoration(
-                border: Border(
-                  right: BorderSide(
-                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                    width: 1,
-                  ),
-                ),
-              ),
-              child: _buildNavigationContent(context, currentLoc),
-            ),
-          Expanded(child: widget.child),
-        ],
-      ),
+      drawer: Drawer(child: _buildDrawerContent(context, currentLoc)),
+      body: SafeArea(child: widget.child),
+      bottomNavigationBar: isMobile
+          ? NavigationBar(
+              selectedIndex: currentIndex < 0 ? 0 : currentIndex,
+              onDestinationSelected: (index) => _navigateTo(_navItems[index].route),
+              destinations: _navItems
+                  .map((item) => NavigationDestination(
+                        icon: Icon(item.icon),
+                        selectedIcon: Icon(item.activeIcon),
+                        label: item.label,
+                      ))
+                  .toList(),
+            )
+          : null,
     );
   }
 
-  Widget _buildNavigationContent(BuildContext context, String currentLoc) {
+  Widget _buildDrawerContent(BuildContext context, String currentLoc) {
+    final authProvider = context.watch<AuthProvider>();
+    final userProfile = authProvider.profile;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    final navItems = [
-      {'route': '/dashboard', 'label': 'Dashboard', 'icon': Icons.dashboard_outlined},
-      {'route': '/explore', 'label': 'Explore Mentors', 'icon': Icons.explore_outlined},
-      {'route': '/goals', 'label': 'Goals & Curriculum', 'icon': Icons.track_changes_outlined},
-      {'route': '/messages', 'label': 'Messages', 'icon': Icons.chat_bubble_outline},
-      {'route': '/events', 'label': 'Events', 'icon': Icons.calendar_today_outlined},
-      {'route': '/ratings', 'label': 'Ratings & Reviews', 'icon': Icons.star_outline},
-      {'route': '/profile', 'label': 'My Profile', 'icon': Icons.person_outline},
-      {'route': '/settings', 'label': 'Settings', 'icon': Icons.settings_outlined},
-    ];
 
     return Column(
       children: [
-        const SizedBox(height: 16),
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            children: navItems.map((item) {
-              final route = item['route'] as String;
-              final label = item['label'] as String;
-              final icon = item['icon'] as IconData;
-              final isActive = currentLoc == route;
-
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: ListTile(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  tileColor: isActive
-                      ? (isDark ? AppColors.slate800 : AppColors.brandBlue50)
-                      : Colors.transparent,
-                  leading: Icon(
-                    icon,
-                    color: isActive
-                        ? (isDark ? AppColors.brandBlue400 : AppColors.brandBlue600)
-                        : (isDark ? AppColors.slate400 : AppColors.slate600),
-                  ),
-                  title: Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
-                      color: isActive
-                          ? (isDark ? AppColors.brandBlue400 : AppColors.brandBlue600)
-                          : (isDark ? AppColors.slate300 : AppColors.slate700),
-                    ),
-                  ),
-                  onTap: () {
-                    if (_scaffoldKey.currentState?.isDrawerOpen == true) {
-                      Navigator.pop(context);
-                    }
-                    context.go(route);
-                  },
+        DrawerHeader(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: isDark ? [AppColors.slate800, AppColors.slate700] : [AppColors.brandGreen600, AppColors.brandBlue600],
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                radius: 28,
+                backgroundColor: Colors.white24,
+                child: Text(
+                  userProfile?.firstName.isNotEmpty == true ? userProfile!.firstName[0].toUpperCase() : 'P',
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
-              );
-            }).toList(),
+              ),
+              const SizedBox(height: 12),
+              Text(userProfile?.fullName ?? 'Propel Member', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+              Text(userProfile?.email ?? 'Mentorship dashboard', style: const TextStyle(color: Colors.white70, fontSize: 12)),
+            ],
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: ListTile(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            leading: const Icon(Icons.logout, color: AppColors.error),
-            title: const Text(
-              'Sign Out',
-              style: TextStyle(color: AppColors.error, fontWeight: FontWeight.w600),
-            ),
-            onTap: () {
-              context.read<AuthProvider>().logout();
-            },
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            children: [
+              _drawerTile(context, currentLoc, 'Dashboard', '/dashboard', Icons.dashboard_outlined),
+              _drawerTile(context, currentLoc, 'My Sessions', '/events', Icons.event_available_outlined),
+              _drawerTile(context, currentLoc, 'My Bookings', '/events', Icons.calendar_month_outlined),
+              _drawerTile(context, currentLoc, 'Saved Mentors', '/explore', Icons.bookmark_border),
+              _drawerTile(context, currentLoc, 'Resources', '/goals', Icons.library_books_outlined),
+              _drawerTile(context, currentLoc, 'Notifications', null, Icons.notifications_outlined, onTap: () => _showNotificationsSheet(context)),
+              _drawerTile(context, currentLoc, 'Settings', '/settings', Icons.settings_outlined),
+              _drawerTile(context, currentLoc, 'Help & Support', null, Icons.help_outline, onTap: () => _showSupportSheet(context)),
+              _drawerTile(context, currentLoc, 'About', null, Icons.info_outline, onTap: () => _showAboutDialog(context)),
+            ],
           ),
+        ),
+        const Divider(height: 1),
+        ListTile(
+          leading: const Icon(Icons.logout, color: AppColors.error),
+          title: const Text('Logout', style: TextStyle(color: AppColors.error, fontWeight: FontWeight.w600)),
+          onTap: () => _confirmLogout(context),
         ),
       ],
     );
   }
 
-  void _showNotificationsDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Consumer<NotificationsProvider>(
-          builder: (context, notificationsProvider, child) {
-            final notifs = notificationsProvider.notifications;
+  Widget _drawerTile(
+    BuildContext context,
+    String currentLoc,
+    String label,
+    String? route,
+    IconData icon, {
+    VoidCallback? onTap,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isActive = route != null && currentLoc == route;
 
-            return AlertDialog(
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Notifications', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  if (notificationsProvider.unreadCount > 0)
-                    TextButton(
-                      onPressed: () => context.read<NotificationsProvider>().markAllRead(),
-                      child: const Text('Mark all read', style: TextStyle(fontSize: 12)),
-                    ),
-                ],
-              ),
-              content: SizedBox(
-                width: 400,
-                height: 400,
-                child: notificationsProvider.isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : notifs.isEmpty
-                        ? const Center(
-                            child: Text(
-                              'No notifications yet',
-                              style: TextStyle(color: AppColors.slate400),
-                            ),
-                          )
-                        : ListView.separated(
-                            itemCount: notifs.length,
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: isActive ? AppColors.brandBlue600 : (isDark ? AppColors.slate400 : AppColors.slate600),
+      ),
+      title: Text(label, style: TextStyle(fontWeight: isActive ? FontWeight.w700 : FontWeight.w500)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      onTap: () {
+        if (_scaffoldKey.currentState?.isDrawerOpen == true) {
+          Navigator.pop(context);
+        }
+        if (onTap != null) {
+          onTap();
+        } else if (route != null) {
+          context.go(route);
+        }
+      },
+    );
+  }
+
+  int _selectedIndex(String currentLoc) {
+    for (var i = 0; i < _navItems.length; i++) {
+      if (currentLoc == _navItems[i].route) return i;
+    }
+    return 0;
+  }
+
+  String _titleForRoute(String currentLoc) {
+    switch (currentLoc) {
+      case '/explore':
+        return 'Mentorship';
+      case '/calendar':
+      case '/events':
+        return 'Calendar & Sessions';
+      case '/messages':
+        return 'Messages';
+      case '/profile':
+        return 'Profile';
+      case '/settings':
+        return 'Settings';
+      default:
+        return 'Propel';
+    }
+  }
+
+  void _navigateTo(String route) {
+    context.go(route);
+  }
+
+  void _showNotificationsSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (sheetContext) {
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.7,
+          maxChildSize: 0.9,
+          builder: (_, scrollController) {
+            return Consumer<NotificationsProvider>(
+              builder: (context, notificationsProvider, child) {
+                return Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Notifications', style: Theme.of(context).textTheme.titleLarge),
+                      const SizedBox(height: 12),
+                      if (notificationsProvider.isLoading)
+                        const Center(child: CircularProgressIndicator())
+                      else if (notificationsProvider.notifications.isEmpty)
+                        const Expanded(child: Center(child: Text('You are all caught up.')))
+                      else
+                        Expanded(
+                          child: ListView.separated(
+                            controller: scrollController,
+                            itemCount: notificationsProvider.notifications.length,
                             separatorBuilder: (_, __) => const Divider(height: 1),
                             itemBuilder: (context, index) {
-                              final n = notifs[index];
+                              final item = notificationsProvider.notifications[index];
                               return ListTile(
-                                dense: true,
-                                title: Text(
-                                  n.title,
-                                  style: TextStyle(
-                                    fontWeight: n.isRead ? FontWeight.normal : FontWeight.bold,
-                                  ),
-                                ),
-                                subtitle: Text(n.body),
-                                trailing: !n.isRead
-                                    ? Container(
-                                        width: 8,
-                                        height: 8,
-                                        decoration: const BoxDecoration(
-                                          color: AppColors.brandBlue600,
-                                          shape: BoxShape.circle,
-                                        ),
-                                      )
-                                    : null,
-                                onTap: () {
-                                  context.read<NotificationsProvider>().markRead(n.id);
-                                },
+                                title: Text(item.title, style: TextStyle(fontWeight: item.isRead ? FontWeight.normal : FontWeight.w700)),
+                                subtitle: Text(item.body),
+                                trailing: item.isRead ? null : const Icon(Icons.circle, color: AppColors.brandBlue600, size: 12),
+                                onTap: () => notificationsProvider.markRead(item.id),
                               );
                             },
                           ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Close'),
-                ),
-              ],
+                        ),
+                    ],
+                  ),
+                );
+              },
             );
           },
         );
       },
     );
   }
+
+  void _showSupportSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (sheetContext) {
+        return Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Help & Support', style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 12),
+              const Text('Reach out to the Propel support team for help with booking, profile updates, or onboarding. We reply within one business day.'),
+              const SizedBox(height: 20),
+              FilledButton.icon(
+                onPressed: () {},
+                icon: const Icon(Icons.email_outlined),
+                label: const Text('Contact support'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showAboutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('About Propel'),
+          content: const Text('Propel helps ambitious learners connect with mentors in a fast, thoughtful, and deeply personal way across every screen size.'),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('Close')),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _confirmLogout(BuildContext context) async {
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Sign out?'),
+          content: const Text('You will need to sign in again to continue using Propel.'),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('Cancel')),
+            FilledButton(onPressed: () => Navigator.pop(dialogContext, true), child: const Text('Sign out')),
+          ],
+        );
+      },
+    );
+
+    if (shouldLogout == true) {
+      await context.read<AuthProvider>().logout();
+    }
+  }
+}
+
+class _NavItem {
+  final String route;
+  final String label;
+  final IconData icon;
+  final IconData activeIcon;
+
+  const _NavItem({required this.route, required this.label, required this.icon, required this.activeIcon});
 }

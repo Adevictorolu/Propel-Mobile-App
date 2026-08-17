@@ -2,16 +2,7 @@ class AppConstants {
   static const String appName = 'Propel';
   static const String appTagline = 'Elevate Your Growth Through Mentorship';
   
-  // Supabase Config fallback defaults (replaced dynamically from env)
-  static const String supabaseUrl = String.fromEnvironment(
-    'VITE_SUPABASE_URL',
-    defaultValue: 'https://xyzcompany.supabase.co',
-  );
-  
-  static const String supabaseAnonKey = String.fromEnvironment(
-    'VITE_SUPABASE_ANON_KEY',
-    defaultValue: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-  );
+
 
   static const List<String> publicRoutes = [
     '/',

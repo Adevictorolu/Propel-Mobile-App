@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/config/app_colors.dart';
-import '../../core/services/supabase_service.dart';
+import '../../core/services/firebase_service.dart';
 import '../../core/utils/validators.dart';
 import '../../core/widgets/app_button.dart';
 import '../../core/widgets/app_text_field.dart';
@@ -35,12 +35,12 @@ class _ConnectionRequestModalState extends State<ConnectionRequestModal> {
 
   Future<void> _handleSubmit() async {
     if (!_formKey.currentState!.validate()) return;
-    final menteeId = context.read<AuthProvider>().user?.id;
+    final menteeId = context.read<AuthProvider>().user?.uid;
     if (menteeId == null) return;
 
     setState(() => _isLoading = true);
     try {
-      await SupabaseService.sendConnectionRequest(
+      await FirebaseService.sendConnectionRequest(
         mentorId: widget.mentorId,
         menteeId: menteeId,
         requestMessage: _messageController.text.trim(),
@@ -66,7 +66,7 @@ class _ConnectionRequestModalState extends State<ConnectionRequestModal> {
         key: _formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               'Introduce yourself and state what you hope to achieve through this mentorship connection.',

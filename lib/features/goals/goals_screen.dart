@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/config/app_colors.dart';
-import '../../core/services/supabase_service.dart';
+import '../../core/services/firebase_service.dart';
 import '../../core/widgets/app_badge.dart';
 import '../../core/widgets/app_button.dart';
 import '../../core/widgets/app_card.dart';
@@ -39,7 +39,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
 
     setState(() => _isLoading = true);
     try {
-      final conns = await SupabaseService.fetchConnections(user.id, role);
+      final conns = await FirebaseService.fetchConnections(user.uid, role);
       final activeConns = conns.where((c) => c.status == 'active').toList();
       setState(() {
         _connections = activeConns;
@@ -59,10 +59,8 @@ class _GoalsScreenState extends State<GoalsScreen> {
 
   Future<void> _loadCurriculum(String connectionId) async {
     try {
-      var curr = await SupabaseService.fetchCurriculum(connectionId);
-      if (curr == null) {
-        curr = await SupabaseService.createCurriculum(connectionId);
-      }
+      var curr = await FirebaseService.fetchCurriculum(connectionId);
+      curr ??= await FirebaseService.createCurriculum(connectionId);
       setState(() => _curriculum = curr);
     } catch (e) {
       print('[GoalsScreen] Load curriculum error: $e');
@@ -72,14 +70,15 @@ class _GoalsScreenState extends State<GoalsScreen> {
   Future<void> _addGoal(String title, String targetDate) async {
     if (_curriculum == null) return;
     try {
-      final updated = await SupabaseService.addGoalToCurriculum(
+      final updated = await FirebaseService.addGoalToCurriculum(
         _curriculum!.id,
         _curriculum!.goals,
         title,
         targetDate,
       );
       setState(() => _curriculum = updated);
-      ToastOverlay.show(context, 'Goal added successfully!', type: ToastType.success);
+      ToastOverlay.show(context, 'Goal added successfully!',
+          type: ToastType.success);
     } catch (e) {
       ToastOverlay.show(context, e.toString(), type: ToastType.error);
     }
@@ -88,7 +87,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
   Future<void> _addMilestone(String goalId, String title) async {
     if (_curriculum == null) return;
     try {
-      final updated = await SupabaseService.addMilestone(
+      final updated = await FirebaseService.addMilestone(
         _curriculum!.id,
         _curriculum!.milestones,
         goalId,
@@ -103,7 +102,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
   Future<void> _toggleMilestone(String milestoneId) async {
     if (_curriculum == null) return;
     try {
-      final updated = await SupabaseService.toggleMilestone(
+      final updated = await FirebaseService.toggleMilestone(
         _curriculum!.id,
         _curriculum!.milestones,
         milestoneId,
@@ -122,17 +121,21 @@ class _GoalsScreenState extends State<GoalsScreen> {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
-        crossAxisAlignment: CrossAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Column(
-                crossAxisAlignment: CrossAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Goals & Curriculum', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  Text('Goals & Curriculum',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   SizedBox(height: 4),
-                  Text('Track structured mentorship roadmap and milestones', style: TextStyle(color: AppColors.slate500, fontSize: 13)),
+                  Text('Track structured mentorship roadmap and milestones',
+                      style:
+                          TextStyle(color: AppColors.slate500, fontSize: 13)),
                 ],
               ),
               if (_selectedConnection != null)
@@ -149,12 +152,12 @@ class _GoalsScreenState extends State<GoalsScreen> {
             ],
           ),
           const SizedBox(height: 24),
-
           if (_connections.isNotEmpty) ...[
-            const Text('Select Mentorship Connection:', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+            const Text('Select Mentorship Connection:',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
             const SizedBox(height: 8),
             DropdownButtonFormField<Connection>(
-              value: _selectedConnection,
+              initialValue: _selectedConnection,
               isExpanded: true,
               items: _connections.map((c) {
                 final partner = isMentor ? c.mentee : c.mentor;
@@ -172,25 +175,32 @@ class _GoalsScreenState extends State<GoalsScreen> {
             ),
             const SizedBox(height: 24),
           ],
-
           _isLoading
               ? const ShimmerLoading(width: double.infinity, height: 300)
               : _connections.isEmpty
                   ? const AppCard(
                       child: Center(
-                        child: Text('No active connections found. Connect with a mentor to start your curriculum.'),
+                        child: Text(
+                            'No active connections found. Connect with a mentor to start your curriculum.'),
                       ),
                     )
                   : _curriculum == null || _curriculum!.goals.isEmpty
-                      ? AppCard(
+                      ? const AppCard(
                           child: Center(
                             child: Column(
                               children: [
-                                const Icon(Icons.track_changes, size: 40, color: AppColors.slate400),
-                                const SizedBox(height: 12),
-                                const Text('No curriculum goals yet', style: TextStyle(fontWeight: FontWeight.bold)),
-                                const SizedBox(height: 4),
-                                const Text('Click "Add Goal" above to create your first learning milestone.', style: TextStyle(fontSize: 12, color: AppColors.slate500)),
+                                Icon(Icons.track_changes,
+                                    size: 40, color: AppColors.slate400),
+                                SizedBox(height: 12),
+                                Text('No curriculum goals yet',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
+                                SizedBox(height: 4),
+                                Text(
+                                    'Click "Add Goal" above to create your first learning milestone.',
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        color: AppColors.slate500)),
                               ],
                             ),
                           ),
@@ -201,63 +211,86 @@ class _GoalsScreenState extends State<GoalsScreen> {
                           itemCount: _curriculum!.goals.length,
                           itemBuilder: (context, index) {
                             final goal = _curriculum!.goals[index];
-                            final goalMilestones = _curriculum!.milestones.where((m) => m.goalId == goal.id).toList();
-                            final completedCount = goalMilestones.where((m) => m.completed).length;
-                            final progressRatio = goalMilestones.isEmpty ? 0.0 : completedCount / goalMilestones.length;
+                            final goalMilestones = _curriculum!.milestones
+                                .where((m) => m.goalId == goal.id)
+                                .toList();
+                            final completedCount =
+                                goalMilestones.where((m) => m.completed).length;
+                            final progressRatio = goalMilestones.isEmpty
+                                ? 0.0
+                                : completedCount / goalMilestones.length;
 
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 16),
                               child: AppCard(
                                 child: Column(
-                                  crossAxisAlignment: CrossAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
                                       children: [
                                         Expanded(
                                           child: Text(
                                             goal.title,
-                                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                            style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold),
                                           ),
                                         ),
                                         AppBadge(
-                                          text: goal.status.replaceAll('_', ' ').toUpperCase(),
-                                          variant: goal.status == 'completed' ? AppBadgeVariant.green : AppBadgeVariant.blue,
+                                          text: goal.status
+                                              .replaceAll('_', ' ')
+                                              .toUpperCase(),
+                                          variant: goal.status == 'completed'
+                                              ? AppBadgeVariant.green
+                                              : AppBadgeVariant.blue,
                                         ),
                                       ],
                                     ),
                                     const SizedBox(height: 6),
-                                    Text('Target Date: ${goal.targetDate}', style: const TextStyle(fontSize: 12, color: AppColors.slate500)),
+                                    Text('Target Date: ${goal.targetDate}',
+                                        style: const TextStyle(
+                                            fontSize: 12,
+                                            color: AppColors.slate500)),
                                     const SizedBox(height: 12),
-
                                     LinearProgressIndicator(
                                       value: progressRatio,
-                                      backgroundColor: isDark ? AppColors.slate700 : AppColors.slate200,
+                                      backgroundColor: isDark
+                                          ? AppColors.slate700
+                                          : AppColors.slate200,
                                       color: AppColors.brandGreen600,
                                       minHeight: 6,
                                       borderRadius: BorderRadius.circular(3),
                                     ),
                                     const SizedBox(height: 16),
-
-                                    const Text('Milestones', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                                    const SizedBox(height: 8),
-                                    ...goalMilestones.map((m) => CheckboxListTile(
-                                      value: m.completed,
-                                      title: Text(
-                                        m.title,
+                                    const Text('Milestones',
                                         style: TextStyle(
-                                          decoration: m.completed ? TextDecoration.lineThrough : null,
-                                          color: m.completed ? AppColors.slate400 : null,
-                                        ),
-                                      ),
-                                      activeColor: AppColors.brandGreen600,
-                                      onChanged: (_) => _toggleMilestone(m.id),
-                                      dense: true,
-                                      contentPadding: EdgeInsets.zero,
-                                    )),
-
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14)),
+                                    const SizedBox(height: 8),
+                                    ...goalMilestones.map((m) =>
+                                        CheckboxListTile(
+                                          value: m.completed,
+                                          title: Text(
+                                            m.title,
+                                            style: TextStyle(
+                                              decoration: m.completed
+                                                  ? TextDecoration.lineThrough
+                                                  : null,
+                                              color: m.completed
+                                                  ? AppColors.slate400
+                                                  : null,
+                                            ),
+                                          ),
+                                          activeColor: AppColors.brandGreen600,
+                                          onChanged: (_) =>
+                                              _toggleMilestone(m.id),
+                                          dense: true,
+                                          contentPadding: EdgeInsets.zero,
+                                        )),
                                     const SizedBox(height: 8),
                                     _AddMilestoneField(
-                                      onAdd: (title) => _addMilestone(goal.id, title),
+                                      onAdd: (title) =>
+                                          _addMilestone(goal.id, title),
                                     ),
                                   ],
                                 ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/config/app_colors.dart';
-import '../../core/services/supabase_service.dart';
+import '../../core/services/firebase_service.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/widgets/app_card.dart';
 import '../../core/widgets/shimmer_loading.dart';
@@ -36,7 +36,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
     setState(() => _isLoading = true);
     try {
-      final convs = await SupabaseService.fetchConversations(user.id, role);
+      final convs = await FirebaseService.fetchConversations(user.uid, role);
       setState(() {
         _conversations = convs;
         if (convs.isNotEmpty) {
@@ -183,7 +183,7 @@ class _ChatDetailPanelState extends State<_ChatDetailPanel> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final channelId = widget.conversation.connectionId ?? widget.conversation.groupId ?? '';
-      final currentUserId = context.read<AuthProvider>().user?.id;
+      final currentUserId = context.read<AuthProvider>().user?.uid;
       context.read<ChatProvider>().initChannel(
             type: widget.conversation.type,
             channelId: channelId,
@@ -197,7 +197,7 @@ class _ChatDetailPanelState extends State<_ChatDetailPanel> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.conversation.id != widget.conversation.id) {
       final channelId = widget.conversation.connectionId ?? widget.conversation.groupId ?? '';
-      final currentUserId = context.read<AuthProvider>().user?.id;
+      final currentUserId = context.read<AuthProvider>().user?.uid;
       context.read<ChatProvider>().initChannel(
             type: widget.conversation.type,
             channelId: channelId,
@@ -224,7 +224,7 @@ class _ChatDetailPanelState extends State<_ChatDetailPanel> {
   @override
   Widget build(BuildContext context) {
     final chatProvider = context.watch<ChatProvider>();
-    final currentUserId = context.watch<AuthProvider>().user?.id;
+    final currentUserId = context.watch<AuthProvider>().user?.uid;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Column(
@@ -243,7 +243,7 @@ class _ChatDetailPanelState extends State<_ChatDetailPanel> {
               ),
               const SizedBox(width: 12),
               Column(
-                crossAxisAlignment: CrossAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(widget.conversation.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   Text(widget.conversation.type.toUpperCase(), style: const TextStyle(fontSize: 11, color: AppColors.slate500)),
@@ -277,7 +277,7 @@ class _ChatDetailPanelState extends State<_ChatDetailPanel> {
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Column(
-                          crossAxisAlignment: CrossAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               msg.content,

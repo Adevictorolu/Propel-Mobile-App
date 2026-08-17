@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'core/config/app_theme.dart';
 import 'core/config/constants.dart';
-import 'core/services/supabase_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/chat_provider.dart';
 import 'providers/notifications_provider.dart';
@@ -10,9 +9,14 @@ import 'providers/presence_provider.dart';
 import 'providers/theme_provider.dart';
 import 'routes/app_router.dart';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await SupabaseService.initialize();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const PropelApp());
 }
 
@@ -28,14 +32,14 @@ class PropelApp extends StatelessWidget {
         ChangeNotifierProxyProvider<AuthProvider, NotificationsProvider>(
           create: (_) => NotificationsProvider(),
           update: (_, auth, notifications) {
-            notifications!.updateUserId(auth.user?.id);
+            notifications!.updateUserId(auth.user?.uid);
             return notifications;
           },
         ),
         ChangeNotifierProxyProvider<AuthProvider, PresenceProvider>(
           create: (_) => PresenceProvider(),
           update: (_, auth, presence) {
-            presence!.updateUserId(auth.user?.id);
+            presence!.updateUserId(auth.user?.uid);
             return presence;
           },
         ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../core/services/supabase_service.dart';
+import '../../core/services/firebase_service.dart';
 import '../../core/utils/validators.dart';
 import '../../core/widgets/app_button.dart';
 import '../../core/widgets/app_text_field.dart';
@@ -38,12 +38,12 @@ class _ReviewModalState extends State<ReviewModal> {
 
   Future<void> _handleSubmit() async {
     if (!_formKey.currentState!.validate()) return;
-    final reviewerId = context.read<AuthProvider>().user?.id;
+    final reviewerId = context.read<AuthProvider>().user?.uid;
     if (reviewerId == null) return;
 
     setState(() => _isLoading = true);
     try {
-      await SupabaseService.submitRating(
+      await FirebaseService.submitRating(
         reviewerId: reviewerId,
         revieweeId: widget.revieweeId,
         connectionId: widget.connectionId,

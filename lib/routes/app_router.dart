@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../features/landing/landing_screen.dart';
 import '../features/auth/auth_layout_screen.dart';
@@ -121,6 +120,10 @@ GoRouter createRouter(AuthProvider authProvider) {
           ),
           GoRoute(
             path: '/events',
+            builder: (context, state) => const EventsScreen(),
+          ),
+          GoRoute(
+            path: '/calendar',
             builder: (context, state) => const EventsScreen(),
           ),
           GoRoute(

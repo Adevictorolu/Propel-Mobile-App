@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../core/services/supabase_service.dart';
+import '../../core/services/firebase_service.dart';
 import '../../core/utils/validators.dart';
 import '../../core/widgets/app_button.dart';
 import '../../core/widgets/app_text_field.dart';
@@ -19,11 +19,14 @@ class _CreateEventModalState extends State<CreateEventModal> {
   final _titleController = TextEditingController();
   final _descController = TextEditingController();
   final _dateController = TextEditingController(
-    text: DateTime.now().add(const Duration(days: 1)).toIso8601String().substring(0, 16),
+    text: DateTime.now()
+        .add(const Duration(days: 1))
+        .toIso8601String()
+        .substring(0, 16),
   );
   final _zoomLinkController = TextEditingController();
 
-  String _inviteType = 'group';
+  final String _inviteType = 'group';
   bool _isLoading = false;
 
   @override
@@ -37,21 +40,24 @@ class _CreateEventModalState extends State<CreateEventModal> {
 
   Future<void> _handleSubmit() async {
     if (!_formKey.currentState!.validate()) return;
-    final mentorId = context.read<AuthProvider>().user?.id;
+    final mentorId = context.read<AuthProvider>().user?.uid;
     if (mentorId == null) return;
 
     setState(() => _isLoading = true);
     try {
-      await SupabaseService.createEvent(
+      await FirebaseService.createEvent(
         mentorId: mentorId,
         title: _titleController.text.trim(),
         description: _descController.text.trim(),
         eventDate: _dateController.text.trim(),
         inviteType: _inviteType,
-        zoomLink: _zoomLinkController.text.trim().isEmpty ? null : _zoomLinkController.text.trim(),
+        zoomLink: _zoomLinkController.text.trim().isEmpty
+            ? null
+            : _zoomLinkController.text.trim(),
       );
       if (mounted) {
-        ToastOverlay.show(context, 'Event created successfully!', type: ToastType.success);
+        ToastOverlay.show(context, 'Event created successfully!',
+            type: ToastType.success);
         Navigator.pop(context, true);
       }
     } catch (e) {
@@ -91,7 +97,8 @@ class _CreateEventModalState extends State<CreateEventModal> {
                 label: 'Event Date & Time (YYYY-MM-DDTHH:mm)',
                 hintText: '2026-08-01T14:00',
                 controller: _dateController,
-                validator: (v) => AppValidators.validateRequired(v, 'Event date'),
+                validator: (v) =>
+                    AppValidators.validateRequired(v, 'Event date'),
               ),
               const SizedBox(height: 14),
               AppTextField(
