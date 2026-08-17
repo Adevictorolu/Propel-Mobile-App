@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../core/config/app_colors.dart';
 import '../../core/utils/validators.dart';
@@ -70,62 +71,94 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Form(
       key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Sign In to Propel',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          Text(
+            'Sign In',
+            style: GoogleFonts.montserrat(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : AppColors.slate900,
+            ),
           ),
           const SizedBox(height: 6),
-          const Text(
-            'Enter your credentials or use Google to sign in',
-            style: TextStyle(fontSize: 13, color: AppColors.slate500),
+          Text(
+            'Welcome back! Choose your preferred login method.',
+            style: GoogleFonts.montserrat(
+              fontSize: 13,
+              color: AppColors.slate500,
+            ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
 
-          // Google Sign In Button
+          // Futuristic Google Sign In Button
           OutlinedButton(
             style: OutlinedButton.styleFrom(
-              minimumSize: const Size.fromHeight(48),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              side: const BorderSide(color: AppColors.slate300),
+              minimumSize: const Size.fromHeight(50),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              side: BorderSide(
+                color: isDark ? AppColors.slate700 : AppColors.slate300,
+                width: 1.5,
+              ),
+              backgroundColor: isDark ? AppColors.slate800 : Colors.white,
+              elevation: 0,
             ),
             onPressed: authProvider.isLoading ? null : _handleGoogleSignIn,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(Icons.g_mobiledata_rounded, size: 28, color: AppColors.brandBlue600),
-                SizedBox(width: 8),
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.g_mobiledata_rounded, size: 24, color: AppColors.brandBlue600),
+                ),
+                const SizedBox(width: 10),
                 Text(
                   'Continue with Google',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.slate800),
+                  style: GoogleFonts.montserrat(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                    color: isDark ? Colors.white : AppColors.slate800,
+                  ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Row(
-            children: const [
-              Expanded(child: Divider()),
+            children: [
+              Expanded(child: Divider(color: isDark ? AppColors.slate700 : AppColors.slate200)),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12),
-                child: Text('OR', style: TextStyle(fontSize: 11, color: AppColors.slate400, fontWeight: FontWeight.bold)),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text(
+                  'OR EMAIL',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 11,
+                    color: AppColors.slate400,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.0,
+                  ),
+                ),
               ),
-              Expanded(child: Divider()),
+              Expanded(child: Divider(color: isDark ? AppColors.slate700 : AppColors.slate200)),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
 
           AppTextField(
             label: 'Email Address',
             hintText: 'you@example.com',
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
-            prefixIcon: const Icon(Icons.email_outlined, size: 20),
+            prefixIcon: const Icon(Icons.email_outlined, size: 20, color: AppColors.brandGreen600),
             validator: AppValidators.validateEmail,
           ),
           const SizedBox(height: 16),
@@ -134,11 +167,12 @@ class _LoginScreenState extends State<LoginScreen> {
             hintText: '••••••••',
             controller: _passwordController,
             obscureText: _obscurePassword,
-            prefixIcon: const Icon(Icons.lock_outline, size: 20),
+            prefixIcon: const Icon(Icons.lock_outline, size: 20, color: AppColors.brandGreen600),
             suffixIcon: IconButton(
               icon: Icon(
-                _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
                 size: 20,
+                color: AppColors.slate400,
               ),
               onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
             ),
@@ -148,9 +182,13 @@ class _LoginScreenState extends State<LoginScreen> {
             alignment: Alignment.centerRight,
             child: TextButton(
               onPressed: () => context.go('/forgot-password'),
-              child: const Text(
+              child: Text(
                 'Forgot password?',
-                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                style: GoogleFonts.montserrat(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.brandBlue600,
+                ),
               ),
             ),
           ),
@@ -161,19 +199,22 @@ class _LoginScreenState extends State<LoginScreen> {
             isLoading: authProvider.isLoading,
             onPressed: _handleLogin,
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
+              Text(
                 "Don't have an account? ",
-                style: TextStyle(fontSize: 13, color: AppColors.slate500),
+                style: GoogleFonts.montserrat(
+                  fontSize: 13,
+                  color: AppColors.slate500,
+                ),
               ),
               GestureDetector(
                 onTap: () => context.go('/signup'),
-                child: const Text(
+                child: Text(
                   'Sign Up',
-                  style: TextStyle(
+                  style: GoogleFonts.montserrat(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
                     color: AppColors.brandBlue600,

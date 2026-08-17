@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -87,16 +88,26 @@ class FirebaseService {
   /// Sign In / Sign Up with Google using Firebase Auth & GoogleSignIn
   static Future<UserCredential?> signInWithGoogle({String defaultRole = 'mentee'}) async {
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) return null;
+      UserCredential userCredential;
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
+      if (kIsWeb) {
+        final GoogleAuthProvider googleProvider = GoogleAuthProvider();
+        googleProvider.addScope('email');
+        googleProvider.addScope('profile');
+        userCredential = await _auth.signInWithPopup(googleProvider);
+      } else {
+        final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+        if (googleUser == null) return null; // User cancelled
 
-      final UserCredential userCredential = await _auth.signInWithCredential(credential);
+        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+        final AuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+
+        userCredential = await _auth.signInWithCredential(credential);
+      }
+
       final User? user = userCredential.user;
 
       if (user != null) {
@@ -124,6 +135,7 @@ class FirebaseService {
 
       return userCredential;
     } catch (e) {
+      print('[FirebaseService] Google Sign-In Error: $e');
       rethrow;
     }
   }

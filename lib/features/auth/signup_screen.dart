@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../core/config/app_colors.dart';
 import '../../core/utils/validators.dart';
@@ -83,61 +84,98 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Form(
       key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Create an Account',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          Text(
+            'Create Account',
+            style: GoogleFonts.montserrat(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : AppColors.slate900,
+            ),
           ),
           const SizedBox(height: 6),
-          const Text(
+          Text(
             'Join the Propel Mentorship Network today',
-            style: TextStyle(fontSize: 13, color: AppColors.slate500),
+            style: GoogleFonts.montserrat(
+              fontSize: 13,
+              color: AppColors.slate500,
+            ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
 
           // Google Sign Up Button
           OutlinedButton(
             style: OutlinedButton.styleFrom(
-              minimumSize: const Size.fromHeight(48),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              side: const BorderSide(color: AppColors.slate300),
+              minimumSize: const Size.fromHeight(50),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              side: BorderSide(
+                color: isDark ? AppColors.slate700 : AppColors.slate300,
+                width: 1.5,
+              ),
+              backgroundColor: isDark ? AppColors.slate800 : Colors.white,
+              elevation: 0,
             ),
             onPressed: authProvider.isLoading ? null : _handleGoogleSignUp,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Icon(Icons.g_mobiledata_rounded, size: 28, color: AppColors.brandBlue600),
-                SizedBox(width: 8),
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.g_mobiledata_rounded, size: 24, color: AppColors.brandBlue600),
+                ),
+                const SizedBox(width: 10),
                 Text(
                   'Sign Up with Google',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.slate800),
+                  style: GoogleFonts.montserrat(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                    color: isDark ? Colors.white : AppColors.slate800,
+                  ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Row(
-            children: const [
-              Expanded(child: Divider()),
+            children: [
+              Expanded(child: Divider(color: isDark ? AppColors.slate700 : AppColors.slate200)),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12),
-                child: Text('OR', style: TextStyle(fontSize: 11, color: AppColors.slate400, fontWeight: FontWeight.bold)),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text(
+                  'OR EMAIL',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 11,
+                    color: AppColors.slate400,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.0,
+                  ),
+                ),
               ),
-              Expanded(child: Divider()),
+              Expanded(child: Divider(color: isDark ? AppColors.slate700 : AppColors.slate200)),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
 
-          const Text(
-            'I want to join as a:',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+          Text(
+            'SELECT ROLE',
+            style: GoogleFonts.montserrat(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.0,
+              color: AppColors.slate500,
+            ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Row(
             children: [
               Expanded(
@@ -153,7 +191,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               Expanded(
                 child: _RoleCard(
                   title: 'Mentor',
-                  subtitle: 'Share knowledge & guide',
+                  subtitle: 'Share & guide others',
                   icon: Icons.workspace_premium_outlined,
                   isSelected: _selectedRole == 'mentor',
                   onTap: () => setState(() => _selectedRole = 'mentor'),
@@ -161,7 +199,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
           Row(
             children: [
               Expanded(
@@ -191,7 +229,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             hintText: 'john@example.com',
             controller: _emailController,
             keyboardType: TextInputType.emailAddress,
-            prefixIcon: const Icon(Icons.email_outlined, size: 20),
+            prefixIcon: const Icon(Icons.email_outlined, size: 20, color: AppColors.brandGreen600),
             validator: AppValidators.validateEmail,
           ),
           const SizedBox(height: 14),
@@ -200,11 +238,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
             hintText: 'At least 8 characters',
             controller: _passwordController,
             obscureText: _obscurePassword,
-            prefixIcon: const Icon(Icons.lock_outline, size: 20),
+            prefixIcon: const Icon(Icons.lock_outline, size: 20, color: AppColors.brandGreen600),
             suffixIcon: IconButton(
               icon: Icon(
-                _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
                 size: 20,
+                color: AppColors.slate400,
               ),
               onPressed: () =>
                   setState(() => _obscurePassword = !_obscurePassword),
@@ -218,19 +257,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
             isLoading: authProvider.isLoading,
             onPressed: _handleSignUp,
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
+              Text(
                 'Already have an account? ',
-                style: TextStyle(fontSize: 13, color: AppColors.slate500),
+                style: GoogleFonts.montserrat(
+                  fontSize: 13,
+                  color: AppColors.slate500,
+                ),
               ),
               GestureDetector(
                 onTap: () => context.go('/login'),
-                child: const Text(
+                child: Text(
                   'Sign In',
-                  style: TextStyle(
+                  style: GoogleFonts.montserrat(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
                     color: AppColors.brandBlue600,
@@ -266,47 +308,63 @@ class _RoleCard extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(12),
+      borderRadius: BorderRadius.circular(14),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: isSelected
               ? (isDark
-                  ? AppColors.brandBlue900.withValues(alpha: 0.4)
-                  : AppColors.brandBlue50)
+                  ? AppColors.brandGreen900.withValues(alpha: 0.3)
+                  : AppColors.brandGreen50)
               : (isDark ? AppColors.slate800 : Colors.white),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isSelected
-                ? AppColors.brandBlue600
-                : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                ? AppColors.brandGreen600
+                : (isDark ? AppColors.slate700 : AppColors.slate200),
             width: isSelected ? 2 : 1,
           ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppColors.brandGreen600.withValues(alpha: 0.15),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : [],
         ),
         child: Row(
           children: [
             Icon(
               icon,
-              color: isSelected ? AppColors.brandBlue600 : AppColors.slate400,
-              size: 24,
+              color: isSelected ? AppColors.brandGreen600 : AppColors.slate400,
+              size: 22,
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: TextStyle(
+                    style: GoogleFonts.montserrat(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: isSelected ? AppColors.brandBlue600 : null,
+                      color: isSelected
+                          ? AppColors.brandGreen600
+                          : (isDark ? Colors.white : AppColors.slate800),
                     ),
                   ),
                   Text(
                     subtitle,
-                    style: const TextStyle(
-                        fontSize: 10, color: AppColors.slate500),
+                    style: GoogleFonts.montserrat(
+                      fontSize: 10,
+                      color: AppColors.slate500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../core/config/app_colors.dart';
 
 class AuthLayoutScreen extends StatelessWidget {
@@ -12,73 +12,125 @@ class AuthLayoutScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 450),
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkCardBg : Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color:
-                        isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                  ),
-                  boxShadow: isDark
-                      ? []
-                      : [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.08),
-                            blurRadius: 20,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                ),
-                padding: const EdgeInsets.all(32),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    GestureDetector(
-                      onTap: () => context.go('/'),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: AppColors.brandGreen600,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Icon(
-                              Icons.rocket_launch,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            'PROPEL',
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 1.5,
-                              color: isDark ? Colors.white : AppColors.slate900,
-                            ),
-                          ),
-                        ],
+      body: Stack(
+        children: [
+          // Background subtle ambient radial gradients (Green top-left, Blue bottom-right)
+          Positioned(
+            top: -80,
+            left: -80,
+            child: Container(
+              width: 320,
+              height: 320,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.brandGreen500.withValues(alpha: isDark ? 0.15 : 0.1),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -100,
+            right: -100,
+            child: Container(
+              width: 380,
+              height: 380,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.brandBlue500.withValues(alpha: isDark ? 0.15 : 0.1),
+              ),
+            ),
+          ),
+
+          // Main Centered Content Card
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 460),
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.darkCardBg.withValues(alpha: 0.95) : Colors.white.withValues(alpha: 0.95),
+                      borderRadius: BorderRadius.circular(28),
+                      border: Border.all(
+                        color: isDark
+                            ? AppColors.brandGreen500.withValues(alpha: 0.2)
+                            : AppColors.brandGreen500.withValues(alpha: 0.15),
+                        width: 1.5,
                       ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.brandGreen600.withValues(alpha: isDark ? 0.2 : 0.08),
+                          blurRadius: 30,
+                          offset: const Offset(0, 10),
+                        ),
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.04),
+                          blurRadius: 15,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 28),
-                    child,
-                  ],
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 36),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Futuristic Propel Branding Header
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [AppColors.brandGreen600, AppColors.brandBlue600],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.brandGreen600.withValues(alpha: 0.4),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.rocket_launch_rounded,
+                                color: Colors.white,
+                                size: 26,
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            ShaderMask(
+                              shaderCallback: (bounds) => const LinearGradient(
+                                colors: [AppColors.brandGreen600, AppColors.brandBlue600],
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                              ).createShader(bounds),
+                              child: Text(
+                                'PROPEL',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 2.0,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 32),
+                        child,
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

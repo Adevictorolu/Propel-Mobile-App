@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/auth_provider.dart';
-import '../features/landing/landing_screen.dart';
 import '../features/auth/auth_layout_screen.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/signup_screen.dart';
@@ -23,7 +22,7 @@ import '../features/settings/settings_screen.dart';
 
 GoRouter createRouter(AuthProvider authProvider) {
   return GoRouter(
-    initialLocation: '/',
+    initialLocation: '/login',
     refreshListenable: authProvider,
     redirect: (BuildContext context, GoRouterState state) {
       if (!authProvider.isInitialized || authProvider.isLoading) {
@@ -33,7 +32,7 @@ GoRouter createRouter(AuthProvider authProvider) {
       final loc = state.matchedLocation;
       final isAuthenticated = authProvider.isAuthenticated;
       final isOnboarded = authProvider.isOnboarded;
-      final isPublicRoute = ['/', '/login', '/signup', '/forgot-password', '/verify-email', '/auth/callback'].contains(loc);
+      final isPublicRoute = ['/login', '/signup', '/forgot-password', '/verify-email', '/auth/callback'].contains(loc);
       final isOnboardingRoute = loc.startsWith('/onboarding');
 
       if (!isAuthenticated && !isPublicRoute) {
@@ -46,7 +45,7 @@ GoRouter createRouter(AuthProvider authProvider) {
           if (loc != targetOnboarding) {
             return targetOnboarding;
           }
-        } else if (isPublicRoute || isOnboardingRoute) {
+        } else if (isPublicRoute || isOnboardingRoute || loc == '/') {
           return '/dashboard';
         }
       }
@@ -56,7 +55,7 @@ GoRouter createRouter(AuthProvider authProvider) {
     routes: [
       GoRoute(
         path: '/',
-        builder: (context, state) => const LandingScreen(),
+        redirect: (context, state) => '/login',
       ),
       ShellRoute(
         builder: (context, state, child) => AuthLayoutScreen(child: child),
