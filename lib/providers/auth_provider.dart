@@ -157,6 +157,69 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> verifyPhone({
+    required String phoneNumber,
+    required void Function(String verificationId, int? resendToken) codeSent,
+    required void Function(FirebaseAuthException e) verificationFailed,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await FirebaseService.verifyPhoneNumber(
+        phoneNumber: phoneNumber,
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          final res = await FirebaseService.auth.signInWithCredential(credential);
+          if (res.user != null) {
+            await loadUserData(res.user!.uid);
+          }
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          _isLoading = false;
+          _error = e.message;
+          notifyListeners();
+          verificationFailed(e);
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          _isLoading = false;
+          notifyListeners();
+          codeSent(verificationId, resendToken);
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {},
+      );
+    } catch (e) {
+      _isLoading = false;
+      _error = e.toString();
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<void> loginWithPhone({
+    required String verificationId,
+    required String smsCode,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final res = await FirebaseService.signInWithPhoneCode(
+        verificationId: verificationId,
+        smsCode: smsCode,
+      );
+      if (res.user != null) {
+        await loadUserData(res.user!.uid);
+      }
+    } catch (e) {
+      _isLoading = false;
+      _error = e.toString();
+      notifyListeners();
+      rethrow;
+    }
+  }
+
   Future<void> logout() async {
     await FirebaseService.signOut();
     _user = null;

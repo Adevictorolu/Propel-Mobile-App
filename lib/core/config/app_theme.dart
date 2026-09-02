@@ -4,9 +4,12 @@ import 'app_colors.dart';
 
 class AppTheme {
   static ThemeData get lightTheme {
+    final baseTextTheme = GoogleFonts.interTextTheme(ThemeData.light().textTheme);
+
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
+      fontFamily: GoogleFonts.inter().fontFamily,
       primaryColor: AppColors.brandGreen600,
       scaffoldBackgroundColor: AppColors.lightBackground,
       colorScheme: const ColorScheme.light(
@@ -18,26 +21,24 @@ class AppTheme {
         onSecondary: Colors.white,
         onSurface: AppColors.lightTextPrimary,
       ),
-      textTheme:
-          GoogleFonts.montserratTextTheme(ThemeData.light().textTheme).copyWith(
-        displayLarge: const TextStyle(
+      textTheme: baseTextTheme.copyWith(
+        displayLarge: GoogleFonts.inter(
             color: AppColors.lightTextPrimary, fontWeight: FontWeight.bold),
-        displayMedium: const TextStyle(
+        displayMedium: GoogleFonts.inter(
             color: AppColors.lightTextPrimary, fontWeight: FontWeight.bold),
-        titleLarge: const TextStyle(
+        titleLarge: GoogleFonts.inter(
             color: AppColors.lightTextPrimary, fontWeight: FontWeight.w600),
-        titleMedium: const TextStyle(
+        titleMedium: GoogleFonts.inter(
             color: AppColors.lightTextPrimary, fontWeight: FontWeight.w600),
-        bodyLarge: const TextStyle(color: AppColors.lightTextPrimary),
-        bodyMedium: const TextStyle(color: AppColors.lightTextSecondary),
+        bodyLarge: GoogleFonts.inter(color: AppColors.lightTextPrimary),
+        bodyMedium: GoogleFonts.inter(color: AppColors.lightTextSecondary),
       ),
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         backgroundColor: AppColors.lightCardBg,
         elevation: 0,
         scrolledUnderElevation: 1,
-        iconTheme: IconThemeData(color: AppColors.slate700),
-        titleTextStyle: TextStyle(
-          fontFamily: 'Montserrat',
+        iconTheme: const IconThemeData(color: AppColors.slate700),
+        titleTextStyle: GoogleFonts.inter(
           color: AppColors.slate800,
           fontSize: 18,
           fontWeight: FontWeight.w600,
@@ -55,7 +56,7 @@ class AppTheme {
       navigationBarTheme: NavigationBarThemeData(
         indicatorColor: AppColors.brandGreen100,
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
-          return const TextStyle(fontSize: 12, fontWeight: FontWeight.w600);
+          return GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600);
         }),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           return const IconThemeData(size: 20);
@@ -82,7 +83,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.error),
         ),
-        hintStyle: const TextStyle(color: AppColors.slate400, fontSize: 14),
+        hintStyle: GoogleFonts.inter(color: AppColors.slate400, fontSize: 14),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -92,7 +93,7 @@ class AppTheme {
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+          textStyle: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 15),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -102,16 +103,19 @@ class AppTheme {
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+          textStyle: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 15),
         ),
       ),
     );
   }
 
   static ThemeData get darkTheme {
+    final baseTextTheme = GoogleFonts.interTextTheme(ThemeData.dark().textTheme);
+
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
+      fontFamily: GoogleFonts.inter().fontFamily,
       primaryColor: AppColors.brandGreen600,
       scaffoldBackgroundColor: AppColors.darkBackground,
       colorScheme: const ColorScheme.dark(
@@ -123,25 +127,23 @@ class AppTheme {
         onSecondary: Colors.white,
         onSurface: AppColors.darkTextPrimary,
       ),
-      textTheme:
-          GoogleFonts.montserratTextTheme(ThemeData.dark().textTheme).copyWith(
-        displayLarge: const TextStyle(
+      textTheme: baseTextTheme.copyWith(
+        displayLarge: GoogleFonts.inter(
             color: AppColors.darkTextPrimary, fontWeight: FontWeight.bold),
-        displayMedium: const TextStyle(
+        displayMedium: GoogleFonts.inter(
             color: AppColors.darkTextPrimary, fontWeight: FontWeight.bold),
-        titleLarge: const TextStyle(
+        titleLarge: GoogleFonts.inter(
             color: AppColors.darkTextPrimary, fontWeight: FontWeight.w600),
-        titleMedium: const TextStyle(
+        titleMedium: GoogleFonts.inter(
             color: AppColors.darkTextPrimary, fontWeight: FontWeight.w600),
-        bodyLarge: const TextStyle(color: AppColors.darkTextPrimary),
-        bodyMedium: const TextStyle(color: AppColors.darkTextSecondary),
+        bodyLarge: GoogleFonts.inter(color: AppColors.darkTextPrimary),
+        bodyMedium: GoogleFonts.inter(color: AppColors.darkTextSecondary),
       ),
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         backgroundColor: AppColors.darkCardBg,
         elevation: 0,
-        iconTheme: IconThemeData(color: AppColors.slate300),
-        titleTextStyle: TextStyle(
-          fontFamily: 'Montserrat',
+        iconTheme: const IconThemeData(color: AppColors.slate300),
+        titleTextStyle: GoogleFonts.inter(
           color: AppColors.darkTextPrimary,
           fontSize: 18,
           fontWeight: FontWeight.w600,
@@ -158,7 +160,7 @@ class AppTheme {
       navigationBarTheme: NavigationBarThemeData(
         indicatorColor: AppColors.brandGreen800,
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
-          return const TextStyle(fontSize: 12, fontWeight: FontWeight.w600);
+          return GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600);
         }),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           return const IconThemeData(size: 20);
@@ -185,7 +187,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.error),
         ),
-        hintStyle: const TextStyle(color: AppColors.slate400, fontSize: 14),
+        hintStyle: GoogleFonts.inter(color: AppColors.slate400, fontSize: 14),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -195,7 +197,7 @@ class AppTheme {
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+          textStyle: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 15),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -205,7 +207,7 @@ class AppTheme {
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+          textStyle: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 15),
         ),
       ),
     );

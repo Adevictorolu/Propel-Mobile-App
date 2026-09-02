@@ -131,7 +131,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const Wrap(
                     spacing: 12,
                     runSpacing: 12,
-                    children: const [
+                    children: [
                       _QuickActionChip(
                           icon: Icons.explore_outlined,
                           label: 'Find mentors',
@@ -156,7 +156,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const Wrap(
               spacing: 12,
               runSpacing: 12,
-              children: const [
+              children: [
                 _ActionTile(
                     icon: Icons.track_changes,
                     title: 'Goals',

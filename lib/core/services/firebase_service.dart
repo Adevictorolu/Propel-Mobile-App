@@ -140,6 +140,57 @@ class FirebaseService {
     }
   }
 
+  /// Verify Phone Number for Phone Authentication
+  static Future<void> verifyPhoneNumber({
+    required String phoneNumber,
+    required void Function(PhoneAuthCredential credential) verificationCompleted,
+    required void Function(FirebaseAuthException e) verificationFailed,
+    required void Function(String verificationId, int? resendToken) codeSent,
+    required void Function(String verificationId) codeAutoRetrievalTimeout,
+  }) async {
+    await _auth.verifyPhoneNumber(
+      phoneNumber: phoneNumber,
+      verificationCompleted: verificationCompleted,
+      verificationFailed: verificationFailed,
+      codeSent: codeSent,
+      codeAutoRetrievalTimeout: codeAutoRetrievalTimeout,
+    );
+  }
+
+  /// Sign In with Phone SMS Code
+  static Future<UserCredential> signInWithPhoneCode({
+    required String verificationId,
+    required String smsCode,
+    String defaultRole = 'mentee',
+  }) async {
+    final credential = PhoneAuthProvider.credential(
+      verificationId: verificationId,
+      smsCode: smsCode,
+    );
+    final userCredential = await _auth.signInWithCredential(credential);
+    final user = userCredential.user;
+
+    if (user != null) {
+      final doc = await _db.collection('profiles').doc(user.uid).get();
+      if (!doc.exists) {
+        final newProfile = Profile(
+          id: user.uid,
+          email: user.email ?? '',
+          firstName: 'User',
+          lastName: user.phoneNumber ?? 'Phone',
+          fullName: user.phoneNumber ?? 'Phone User',
+          role: defaultRole,
+          onboardingComplete: false,
+          createdAt: DateTime.now().toIso8601String(),
+        );
+
+        await saveProfile(newProfile);
+      }
+    }
+
+    return userCredential;
+  }
+
   /// Sign Out from Firebase and Google
   static Future<void> signOut() async {
     try {

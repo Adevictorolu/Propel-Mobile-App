@@ -93,7 +93,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         children: [
           Text(
             'Create Account',
-            style: GoogleFonts.montserrat(
+            style: GoogleFonts.inter(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: isDark ? Colors.white : AppColors.slate900,
@@ -102,7 +102,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           const SizedBox(height: 6),
           Text(
             'Join the Propel Mentorship Network today',
-            style: GoogleFonts.montserrat(
+            style: GoogleFonts.inter(
               fontSize: 13,
               color: AppColors.slate500,
             ),
@@ -136,7 +136,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 const SizedBox(width: 10),
                 Text(
                   'Sign Up with Google',
-                  style: GoogleFonts.montserrat(
+                  style: GoogleFonts.inter(
                     fontWeight: FontWeight.w700,
                     fontSize: 14,
                     color: isDark ? Colors.white : AppColors.slate800,
@@ -153,7 +153,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Text(
                   'OR EMAIL',
-                  style: GoogleFonts.montserrat(
+                  style: GoogleFonts.inter(
                     fontSize: 11,
                     color: AppColors.slate400,
                     fontWeight: FontWeight.bold,
@@ -168,7 +168,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
           Text(
             'SELECT ROLE',
-            style: GoogleFonts.montserrat(
+            style: GoogleFonts.inter(
               fontSize: 11,
               fontWeight: FontWeight.bold,
               letterSpacing: 1.0,
@@ -263,7 +263,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             children: [
               Text(
                 'Already have an account? ',
-                style: GoogleFonts.montserrat(
+                style: GoogleFonts.inter(
                   fontSize: 13,
                   color: AppColors.slate500,
                 ),
@@ -272,7 +272,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 onTap: () => context.go('/login'),
                 child: Text(
                   'Sign In',
-                  style: GoogleFonts.montserrat(
+                  style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
                     color: AppColors.brandBlue600,
@@ -349,7 +349,7 @@ class _RoleCard extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.montserrat(
+                    style: GoogleFonts.inter(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
                       color: isSelected
@@ -359,7 +359,7 @@ class _RoleCard extends StatelessWidget {
                   ),
                   Text(
                     subtitle,
-                    style: GoogleFonts.montserrat(
+                    style: GoogleFonts.inter(
                       fontSize: 10,
                       color: AppColors.slate500,
                     ),

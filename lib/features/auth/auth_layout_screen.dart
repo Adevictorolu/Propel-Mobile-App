@@ -80,13 +80,9 @@ class AuthLayoutScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Container(
-                              padding: const EdgeInsets.all(12),
+                              width: 48,
+                              height: 48,
                               decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [AppColors.brandGreen600, AppColors.brandBlue600],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: [
                                   BoxShadow(
@@ -96,10 +92,20 @@ class AuthLayoutScreen extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              child: const Icon(
-                                Icons.rocket_launch_rounded,
-                                color: Colors.white,
-                                size: 26,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: Image.asset(
+                                  'assets/images/app_logo.jpg',
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) => Container(
+                                    color: AppColors.brandGreen600,
+                                    child: const Icon(
+                                      Icons.rocket_launch_rounded,
+                                      color: Colors.white,
+                                      size: 26,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                             const SizedBox(width: 14),
@@ -111,7 +117,7 @@ class AuthLayoutScreen extends StatelessWidget {
                               ).createShader(bounds),
                               child: Text(
                                 'PROPEL',
-                                style: GoogleFonts.montserrat(
+                                style: GoogleFonts.inter(
                                   fontSize: 26,
                                   fontWeight: FontWeight.w900,
                                   letterSpacing: 2.0,

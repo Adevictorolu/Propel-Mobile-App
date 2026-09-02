@@ -1,1 +1,41 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"propel-8f0b6","appId":"1:340528556624:android:749ce0bb710520fcffbf55","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"propel-8f0b6","configurations":{"android":"1:340528556624:android:749ce0bb710520fcffbf55","ios":"1:340528556624:ios:fd2f9a9f731980b6ffbf55","macos":"1:340528556624:ios:fd2f9a9f731980b6ffbf55","web":"1:340528556624:web:d9708a204bfe76a3ffbf55","windows":"1:340528556624:web:03d1ea8909fd36aeffbf55"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "propel-8f0b6",
+          "appId": "1:340528556624:android:749ce0bb710520fcffbf55",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "propel-8f0b6",
+          "configurations": {
+            "android": "1:340528556624:android:749ce0bb710520fcffbf55",
+            "ios": "1:340528556624:ios:fd2f9a9f731980b6ffbf55",
+            "macos": "1:340528556624:ios:fd2f9a9f731980b6ffbf55",
+            "web": "1:340528556624:web:d9708a204bfe76a3ffbf55",
+            "windows": "1:340528556624:web:03d1ea8909fd36aeffbf55"
+          }
+        }
+      }
+    }
+  },
+  "auth": {
+    "providers": {
+      "emailPassword": true,
+      "phone": true,
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "Propel Mentorship Platform",
+        "supportEmail": "support@propel-8f0b6.firebaseapp.com"
+      }
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  }
+}
