@@ -1,4 +1,6 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'core/config/app_theme.dart';
 import 'core/config/constants.dart';
@@ -8,15 +10,52 @@ import 'providers/notifications_provider.dart';
 import 'providers/presence_provider.dart';
 import 'providers/theme_provider.dart';
 import 'routes/app_router.dart';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+
+  // Configure Global Flutter Error Handlers for production & debugging
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    debugPrint('[FlutterError] ${details.exceptionAsString()}');
+  };
+
+  PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
+    debugPrint('[UncaughtPlatformError] $error\n$stack');
+    return true;
+  };
+
+  // Set immersive mobile UI overlays and preferred device orientations
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
+
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.light,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ),
   );
+
+  // Initialize Firebase with fallback error handling
+  try {
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
+  } catch (e, stack) {
+    debugPrint('[FirebaseInitError] Could not initialize Firebase: $e\n$stack');
+  }
+
   runApp(const PropelApp());
 }
 
@@ -56,6 +95,14 @@ class PropelApp extends StatelessWidget {
             darkTheme: AppTheme.darkTheme,
             themeMode: themeProvider.themeMode,
             routerConfig: router,
+            scrollBehavior: const MaterialScrollBehavior().copyWith(
+              dragDevices: {
+                PointerDeviceKind.touch,
+                PointerDeviceKind.mouse,
+                PointerDeviceKind.stylus,
+                PointerDeviceKind.unknown,
+              },
+            ),
           );
         },
       ),
