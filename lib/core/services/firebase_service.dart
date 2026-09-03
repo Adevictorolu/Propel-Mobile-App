@@ -64,9 +64,35 @@ class FirebaseService {
       );
 
       await saveProfile(newProfile);
+      await logActivity(
+        userId: user.uid,
+        action: 'sign_up',
+        description: 'New account registered as $role',
+        metadata: {'email': email, 'role': role},
+      );
     }
 
     return cred;
+  }
+
+  /// Log site activity & interactions to Firestore `activity_logs` collection
+  static Future<void> logActivity({
+    required String userId,
+    required String action,
+    required String description,
+    Map<String, dynamic>? metadata,
+  }) async {
+    try {
+      await _db.collection('activity_logs').add({
+        'user_id': userId,
+        'action': action,
+        'description': description,
+        'metadata': metadata ?? {},
+        'created_at': DateTime.now().toIso8601String(),
+      });
+    } catch (e) {
+      debugPrint('[FirebaseService] logActivity error: $e');
+    }
   }
 
   /// Send Password Reset Email
@@ -79,10 +105,19 @@ class FirebaseService {
     required String email,
     required String password,
   }) async {
-    return await _auth.signInWithEmailAndPassword(
+    final cred = await _auth.signInWithEmailAndPassword(
       email: email,
       password: password,
     );
+    if (cred.user != null) {
+      await logActivity(
+        userId: cred.user!.uid,
+        action: 'sign_in',
+        description: 'User signed in with Email/Password',
+        metadata: {'email': email},
+      );
+    }
+    return cred;
   }
 
   /// Sign In / Sign Up with Google using Firebase Auth & GoogleSignIn
@@ -563,6 +598,12 @@ class FirebaseService {
       payload['group_id'] = channelId;
     }
     final docRef = await _db.collection('messages').add(payload);
+    await logActivity(
+      userId: senderId,
+      action: 'message_sent',
+      description: 'Sent a $type message',
+      metadata: {'channel_id': channelId, 'type': type},
+    );
     return Message.fromJson({...payload, 'id': docRef.id});
   }
 
@@ -595,6 +636,12 @@ class FirebaseService {
       'created_at': DateTime.now().toIso8601String(),
     };
     final doc = await _db.collection('events').add(payload);
+    await logActivity(
+      userId: mentorId,
+      action: 'event_created',
+      description: 'Created event: $title',
+      metadata: {'event_id': doc.id, 'event_date': eventDate},
+    );
     return Event.fromJson({...payload, 'id': doc.id});
   }
 
@@ -603,6 +650,12 @@ class FirebaseService {
       'status': status,
       'updated_at': DateTime.now().toIso8601String(),
     });
+    await logActivity(
+      userId: userId,
+      action: 'event_rsvp',
+      description: 'RSVPed $status to event',
+      metadata: {'event_id': eventId, 'status': status},
+    );
   }
 
   // ==========================================
@@ -632,6 +685,12 @@ class FirebaseService {
       'comment': comment,
       'created_at': DateTime.now().toIso8601String(),
     });
+    await logActivity(
+      userId: reviewerId,
+      action: 'rating_submitted',
+      description: 'Submitted rating score $score',
+      metadata: {'reviewee_id': revieweeId, 'score': score},
+    );
   }
 
   // ==========================================

@@ -1,8 +1,95 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if request.auth != null;
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // 1. Profiles Collection
+    match /profiles/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(userId)
+                    && request.resource.data.role in ['mentee', 'mentor']
+                    && request.resource.data.id == userId;
+      allow update: if isOwner(userId)
+                    && request.resource.data.role == resource.data.role;
+    }
+
+    // 2. Mentor Profiles Collection
+    match /mentor_profiles/{userId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isOwner(userId) || (isAuthenticated() && request.resource.data.user_id == request.auth.uid);
+    }
+
+    // 3. Mentee Profiles Collection
+    match /mentee_profiles/{userId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isOwner(userId) || (isAuthenticated() && request.resource.data.user_id == request.auth.uid);
+    }
+
+    // 4. Connections Collection
+    match /connections/{connectionId} {
+      allow read: if isAuthenticated() && (
+        resource.data.mentor_id == request.auth.uid || 
+        resource.data.mentee_id == request.auth.uid
+      );
+      allow create: if isAuthenticated() && request.resource.data.mentee_id == request.auth.uid;
+      allow update: if isAuthenticated() && (
+        resource.data.mentor_id == request.auth.uid || 
+        resource.data.mentee_id == request.auth.uid
+      );
+    }
+
+    // 5. Curricula Collection
+    match /curricula/{curriculumId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // 6. Messages Collection
+    match /messages/{messageId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.sender_id == request.auth.uid;
+    }
+
+    // 7. Events Collection
+    match /events/{eventId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.mentor_id == request.auth.uid;
+      allow update, delete: if isAuthenticated() && resource.data.mentor_id == request.auth.uid;
+
+      match /rsvps/{userId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // 8. Ratings Collection
+    match /ratings/{ratingId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.reviewer_id == request.auth.uid;
+    }
+
+    // 9. Notifications Collection
+    match /notifications/{notificationId} {
+      allow read, update: if isAuthenticated() && resource.data.user_id == request.auth.uid;
+      allow create: if isAuthenticated();
+    }
+
+    // 10. Activity Logs Collection
+    match /activity_logs/{logId} {
+      allow read: if isAuthenticated() && resource.data.user_id == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.user_id == request.auth.uid;
+    }
+
+    // 11. Presence Collection
+    match /presence/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId);
     }
   }
 }
