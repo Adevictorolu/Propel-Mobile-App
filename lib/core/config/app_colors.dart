@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Brand Colors (Green & Blue palette from Tailwind)
+  // Exact Propel Brand Palette (From Coolors palette)
+  static const Color propelGreen = Color(0xFF64BD6A);
+  static const Color propelGreenLight = Color(0xFF89CC75);
+  static const Color propelBlue = Color(0xFF326FB0);
+  static const Color propelBlueMedium = Color(0xFF2E7FB1);
+  static const Color propelBlueCyan = Color(0xFF3A91B2);
+
+  // Brand Colors (Green & Blue palette)
   static const Color brandGreen50 = Color(0xFFF0FDF4);
   static const Color brandGreen100 = Color(0xFFDCFCE7);
   static const Color brandGreen200 = Color(0xFFBBF7D0);
   static const Color brandGreen300 = Color(0xFF86EFAC);
-  static const Color brandGreen400 = Color(0xFF4ADE80);
-  static const Color brandGreen500 = Color(0xFF22C55E);
-  static const Color brandGreen600 = Color(0xFF16A34A);
+  static const Color brandGreen400 = propelGreenLight;
+  static const Color brandGreen500 = propelGreen;
+  static const Color brandGreen600 = propelGreen;
   static const Color brandGreen700 = Color(0xFF15803D);
   static const Color brandGreen800 = Color(0xFF166534);
   static const Color brandGreen900 = Color(0xFF14532D);
@@ -16,10 +23,10 @@ class AppColors {
   static const Color brandBlue50 = Color(0xFFEFF6FF);
   static const Color brandBlue100 = Color(0xFFDBEAFE);
   static const Color brandBlue200 = Color(0xFFBFDBFE);
-  static const Color brandBlue300 = Color(0xFF93C5FD);
-  static const Color brandBlue400 = Color(0xFF60A5FA);
-  static const Color brandBlue500 = Color(0xFF3B82F6);
-  static const Color brandBlue600 = Color(0xFF2563EB);
+  static const Color brandBlue300 = propelBlueCyan;
+  static const Color brandBlue400 = propelBlueMedium;
+  static const Color brandBlue500 = propelBlue;
+  static const Color brandBlue600 = propelBlue;
   static const Color brandBlue700 = Color(0xFF1D4ED8);
   static const Color brandBlue800 = Color(0xFF1E40AF);
   static const Color brandBlue900 = Color(0xFF1E3A8A);
@@ -37,10 +44,10 @@ class AppColors {
   static const Color slate900 = Color(0xFF0F172A);
 
   // Functional Colors
-  static const Color success = brandGreen600;
+  static const Color success = propelGreen;
   static const Color error = Color(0xFFEF4444);
   static const Color warning = Color(0xFFF59E0B);
-  static const Color info = brandBlue600;
+  static const Color info = propelBlue;
 
   // Light Mode Defaults
   static const Color lightBackground = slate50;

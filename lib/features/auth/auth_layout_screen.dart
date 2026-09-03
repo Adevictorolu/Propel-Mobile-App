@@ -111,13 +111,13 @@ class AuthLayoutScreen extends StatelessWidget {
                             const SizedBox(width: 14),
                             ShaderMask(
                               shaderCallback: (bounds) => const LinearGradient(
-                                colors: [AppColors.brandGreen600, AppColors.brandBlue600],
+                                colors: [AppColors.propelBlue, AppColors.propelGreen],
                                 begin: Alignment.centerLeft,
                                 end: Alignment.centerRight,
                               ).createShader(bounds),
                               child: Text(
                                 'PROPEL',
-                                style: GoogleFonts.inter(
+                                style: GoogleFonts.montserrat(
                                   fontSize: 26,
                                   fontWeight: FontWeight.w900,
                                   letterSpacing: 2.0,

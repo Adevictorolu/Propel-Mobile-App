@@ -80,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
         children: [
           Text(
             'Sign In',
-            style: GoogleFonts.inter(
+            style: GoogleFonts.montserrat(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: isDark ? Colors.white : AppColors.slate900,
@@ -89,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
           const SizedBox(height: 6),
           Text(
             'Welcome back! Choose your preferred login method.',
-            style: GoogleFonts.inter(
+            style: GoogleFonts.montserrat(
               fontSize: 13,
               color: AppColors.slate500,
             ),
@@ -123,7 +123,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(width: 10),
                 Text(
                   'Continue with Google',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.montserrat(
                     fontWeight: FontWeight.w700,
                     fontSize: 14,
                     color: isDark ? Colors.white : AppColors.slate800,
@@ -140,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Text(
                   'OR EMAIL',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.montserrat(
                     fontSize: 11,
                     color: AppColors.slate400,
                     fontWeight: FontWeight.bold,
@@ -184,7 +184,7 @@ class _LoginScreenState extends State<LoginScreen> {
               onPressed: () => context.go('/forgot-password'),
               child: Text(
                 'Forgot password?',
-                style: GoogleFonts.inter(
+                style: GoogleFonts.montserrat(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: AppColors.brandBlue600,
@@ -205,7 +205,7 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               Text(
                 "Don't have an account? ",
-                style: GoogleFonts.inter(
+                style: GoogleFonts.montserrat(
                   fontSize: 13,
                   color: AppColors.slate500,
                 ),
@@ -214,7 +214,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 onTap: () => context.go('/signup'),
                 child: Text(
                   'Sign Up',
-                  style: GoogleFonts.inter(
+                  style: GoogleFonts.montserrat(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
                     color: AppColors.brandBlue600,
