@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
+import 'typography.dart';
 
 class AppTheme {
   static ThemeData get lightTheme {
-    final baseTextTheme = GoogleFonts.montserratTextTheme(ThemeData.light().textTheme);
-
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      fontFamily: GoogleFonts.montserrat().fontFamily,
+      fontFamily: AppTypography.fontFamily,
       primaryColor: AppColors.brandGreen600,
       scaffoldBackgroundColor: AppColors.lightBackground,
       colorScheme: const ColorScheme.light(
@@ -21,27 +19,17 @@ class AppTheme {
         onSecondary: Colors.white,
         onSurface: AppColors.lightTextPrimary,
       ),
-      textTheme: baseTextTheme.copyWith(
-        displayLarge: GoogleFonts.montserrat(
-            color: AppColors.lightTextPrimary, fontWeight: FontWeight.bold),
-        displayMedium: GoogleFonts.montserrat(
-            color: AppColors.lightTextPrimary, fontWeight: FontWeight.bold),
-        titleLarge: GoogleFonts.montserrat(
-            color: AppColors.lightTextPrimary, fontWeight: FontWeight.w600),
-        titleMedium: GoogleFonts.montserrat(
-            color: AppColors.lightTextPrimary, fontWeight: FontWeight.w600),
-        bodyLarge: GoogleFonts.montserrat(color: AppColors.lightTextPrimary),
-        bodyMedium: GoogleFonts.montserrat(color: AppColors.lightTextSecondary),
-      ),
+      textTheme: AppTypography.lightTextTheme(ThemeData.light().textTheme),
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.lightCardBg,
         elevation: 0,
         scrolledUnderElevation: 1,
         iconTheme: const IconThemeData(color: AppColors.slate700),
-        titleTextStyle: GoogleFonts.montserrat(
+        titleTextStyle: TextStyle(
           color: AppColors.slate800,
           fontSize: 18,
           fontWeight: FontWeight.w600,
+          fontFamily: AppTypography.fontFamily,
         ),
       ),
       cardTheme: CardThemeData(
@@ -56,7 +44,11 @@ class AppTheme {
       navigationBarTheme: NavigationBarThemeData(
         indicatorColor: AppColors.brandGreen100,
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
-          return GoogleFonts.montserrat(fontSize: 12, fontWeight: FontWeight.w600);
+          return TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            fontFamily: AppTypography.fontFamily,
+          );
         }),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           return const IconThemeData(size: 20);
@@ -65,8 +57,7 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.lightBorder),
@@ -83,39 +74,47 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.error),
         ),
-        hintStyle: GoogleFonts.montserrat(color: AppColors.slate400, fontSize: 14),
+        hintStyle: TextStyle(
+          color: AppColors.slate400,
+          fontSize: 14,
+          fontFamily: AppTypography.fontFamily,
+        ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.brandGreen600,
           foregroundColor: Colors.white,
           elevation: 0,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          textStyle: GoogleFonts.montserrat(fontWeight: FontWeight.w600, fontSize: 15),
+          textStyle: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 15,
+            fontFamily: AppTypography.fontFamily,
+          ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.slate700,
           side: const BorderSide(color: AppColors.slate300, width: 1.5),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          textStyle: GoogleFonts.montserrat(fontWeight: FontWeight.w600, fontSize: 15),
+          textStyle: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 15,
+            fontFamily: AppTypography.fontFamily,
+          ),
         ),
       ),
     );
   }
 
   static ThemeData get darkTheme {
-    final baseTextTheme = GoogleFonts.montserratTextTheme(ThemeData.dark().textTheme);
-
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      fontFamily: GoogleFonts.montserrat().fontFamily,
+      fontFamily: AppTypography.fontFamily,
       primaryColor: AppColors.brandGreen600,
       scaffoldBackgroundColor: AppColors.darkBackground,
       colorScheme: const ColorScheme.dark(
@@ -127,26 +126,16 @@ class AppTheme {
         onSecondary: Colors.white,
         onSurface: AppColors.darkTextPrimary,
       ),
-      textTheme: baseTextTheme.copyWith(
-        displayLarge: GoogleFonts.montserrat(
-            color: AppColors.darkTextPrimary, fontWeight: FontWeight.bold),
-        displayMedium: GoogleFonts.montserrat(
-            color: AppColors.darkTextPrimary, fontWeight: FontWeight.bold),
-        titleLarge: GoogleFonts.montserrat(
-            color: AppColors.darkTextPrimary, fontWeight: FontWeight.w600),
-        titleMedium: GoogleFonts.montserrat(
-            color: AppColors.darkTextPrimary, fontWeight: FontWeight.w600),
-        bodyLarge: GoogleFonts.montserrat(color: AppColors.darkTextPrimary),
-        bodyMedium: GoogleFonts.montserrat(color: AppColors.darkTextSecondary),
-      ),
+      textTheme: AppTypography.darkTextTheme(ThemeData.dark().textTheme),
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.darkCardBg,
         elevation: 0,
         iconTheme: const IconThemeData(color: AppColors.slate300),
-        titleTextStyle: GoogleFonts.montserrat(
+        titleTextStyle: TextStyle(
           color: AppColors.darkTextPrimary,
           fontSize: 18,
           fontWeight: FontWeight.w600,
+          fontFamily: AppTypography.fontFamily,
         ),
       ),
       cardTheme: CardThemeData(
@@ -160,7 +149,11 @@ class AppTheme {
       navigationBarTheme: NavigationBarThemeData(
         indicatorColor: AppColors.brandGreen800,
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
-          return GoogleFonts.montserrat(fontSize: 12, fontWeight: FontWeight.w600);
+          return TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            fontFamily: AppTypography.fontFamily,
+          );
         }),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           return const IconThemeData(size: 20);
@@ -169,8 +162,7 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.slate700,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.darkBorder),
@@ -187,27 +179,37 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.error),
         ),
-        hintStyle: GoogleFonts.montserrat(color: AppColors.slate400, fontSize: 14),
+        hintStyle: TextStyle(
+          color: AppColors.slate400,
+          fontSize: 14,
+          fontFamily: AppTypography.fontFamily,
+        ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.brandGreen600,
           foregroundColor: Colors.white,
           elevation: 0,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          textStyle: GoogleFonts.montserrat(fontWeight: FontWeight.w600, fontSize: 15),
+          textStyle: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 15,
+            fontFamily: AppTypography.fontFamily,
+          ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.slate300,
           side: const BorderSide(color: AppColors.slate600, width: 1.5),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          textStyle: GoogleFonts.montserrat(fontWeight: FontWeight.w600, fontSize: 15),
+          textStyle: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 15,
+            fontFamily: AppTypography.fontFamily,
+          ),
         ),
       ),
     );

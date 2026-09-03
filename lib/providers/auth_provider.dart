@@ -88,6 +88,36 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  String _formatPropelAuthError(dynamic e) {
+    if (e is FirebaseAuthException) {
+      switch (e.code) {
+        case 'user-not-found':
+          return '[Propel Auth] No account found with this email. Please sign up first.';
+        case 'wrong-password':
+        case 'invalid-credential':
+          return '[Propel Auth] Invalid email or password. Please verify your credentials.';
+        case 'email-already-in-use':
+          return '[Propel Auth] An account already exists with this email address.';
+        case 'weak-password':
+          return '[Propel Auth] Password is too weak. Please use at least 8 characters.';
+        case 'invalid-email':
+          return '[Propel Auth] Please enter a valid email address.';
+        case 'user-disabled':
+          return '[Propel Auth] This account has been disabled. Please contact Propel Support.';
+        case 'too-many-requests':
+          return '[Propel Auth] Access temporarily blocked due to multiple failed attempts. Please try again later.';
+        case 'operation-not-allowed':
+          return '[Propel Auth] This sign-in method is not enabled. Please contact Propel administrator.';
+        case 'invalid-verification-code':
+          return '[Propel Auth] Invalid SMS verification code. Please check the code sent to your phone.';
+        default:
+          return '[Propel Auth] ${e.message ?? 'An unexpected authentication error occurred.'}';
+      }
+    }
+    final errStr = e.toString().replaceAll('Exception: ', '').replaceAll('FirebaseAuthException: ', '');
+    return errStr.startsWith('[Propel') ? errStr : '[Propel Auth] $errStr';
+  }
+
   Future<void> login(String email, String password) async {
     _isLoading = true;
     _error = null;
@@ -100,9 +130,9 @@ class AuthProvider extends ChangeNotifier {
       }
     } catch (e) {
       _isLoading = false;
-      _error = e.toString();
+      _error = _formatPropelAuthError(e);
       notifyListeners();
-      rethrow;
+      throw Exception(_error);
     }
   }
 
@@ -121,9 +151,9 @@ class AuthProvider extends ChangeNotifier {
       }
     } catch (e) {
       _isLoading = false;
-      _error = e.toString();
+      _error = _formatPropelAuthError(e);
       notifyListeners();
-      rethrow;
+      throw Exception(_error);
     }
   }
 
@@ -151,9 +181,9 @@ class AuthProvider extends ChangeNotifier {
       }
     } catch (e) {
       _isLoading = false;
-      _error = e.toString();
+      _error = _formatPropelAuthError(e);
       notifyListeners();
-      rethrow;
+      throw Exception(_error);
     }
   }
 

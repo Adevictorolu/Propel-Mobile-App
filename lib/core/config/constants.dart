@@ -1,6 +1,6 @@
 class AppConstants {
   static const String appName = 'Propel';
-  static const String appTagline = 'Elevate Your Growth Through Mentorship';
+  static const String appTagline = 'Professional Mentorship Program for Emerging Leaders';
   
 
 

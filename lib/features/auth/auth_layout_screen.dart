@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/config/app_colors.dart';
+import '../../core/config/constants.dart';
 
 class AuthLayoutScreen extends StatelessWidget {
   final Widget child;
@@ -127,7 +128,18 @@ class AuthLayoutScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 6),
+                        Text(
+                          AppConstants.appTagline,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? AppColors.slate400 : AppColors.slate500,
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                        const SizedBox(height: 28),
                         child,
                       ],
                     ),
